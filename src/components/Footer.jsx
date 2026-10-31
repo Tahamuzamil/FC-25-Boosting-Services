@@ -1,8 +1,8 @@
-import { ShieldCheck, Lock, Headphones, MessageSquare, Send } from 'lucide-react';
+import { ShieldCheck, Lock, Headphones, MessageSquare, Send, Trophy, Check, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Footer() {
-  const { setCurrentPage, setIsTrackerOpen } = useApp();
+  const { setCurrentPage, setIsTrackerOpen, openContactModal } = useApp();
 
   return (
     <footer className="w-full bg-[#080A0F] border-t border-[#262B3D] pt-12 sm:pt-16 pb-10 sm:pb-12 text-gray-400 font-sans select-none">
@@ -188,7 +188,19 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <span className="text-gray-500 cursor-not-allowed">Become a Pro Booster (Hiring)</span>
+                <button
+                  onClick={() => {
+                    openContactModal({
+                      serviceName: 'Booster Application (Top 200)',
+                      details: 'Applying to join verified pro boosting roster',
+                      price: 0,
+                      platform: 'ps5',
+                    });
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Become a Pro Booster (Hiring)
+                </button>
               </li>
             </ul>
           </div>
@@ -222,10 +234,64 @@ export default function Footer() {
 
         </div>
 
+        {/* Work With Us - Hiring Banner (from Design) */}
+        <div className="mb-10 rounded-2xl border border-[#FFB800]/40 bg-gradient-to-r from-[#181C28] via-[#141824] to-[#141824] p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#FFB800]/10 border border-[#FFB800]/30 flex items-center justify-center text-[#FFB800] shrink-0">
+              <Trophy className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-[#FFB800] text-[#0B0D13] text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider">
+                  NOW HIRING
+                </span>
+                <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                  WORK WITH US — JOIN AS A BOOSTER
+                </h4>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Top 200 FC player? Apply to join our verified pro roster and get paid to play.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-gray-300 w-full lg:w-auto justify-between lg:justify-end">
+            <div className="flex items-center space-x-4">
+              <span className="inline-flex items-center space-x-1.5 text-gray-300 font-medium">
+                <Check className="w-4 h-4 text-[#00F59B] shrink-0" />
+                <span>Flexible hours</span>
+              </span>
+              <span className="inline-flex items-center space-x-1.5 text-gray-300 font-medium">
+                <Check className="w-4 h-4 text-[#00F59B] shrink-0" />
+                <span>Steady orders</span>
+              </span>
+              <span className="inline-flex items-center space-x-1.5 text-gray-300 font-medium">
+                <Check className="w-4 h-4 text-[#00F59B] shrink-0" />
+                <span>Fast payouts</span>
+              </span>
+            </div>
+
+            <button
+              onClick={() => {
+                openContactModal({
+                  serviceName: 'Booster Application (Top 200)',
+                  details: 'Applying to join verified pro boosting roster',
+                  price: 0,
+                  platform: 'ps5',
+                });
+              }}
+              className="px-5 py-2.5 rounded-xl bg-[#FFB800] hover:bg-[#E5A600] text-[#0B0D13] font-black text-xs uppercase tracking-wider inline-flex items-center space-x-1.5 transition-all shadow-md cursor-pointer shrink-0"
+            >
+              <span>APPLY NOW</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
         {/* Bottom Disclaimer & Copyright */}
         <div className="border-t border-[#262B3D]/80 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-gray-400 gap-4">
           <div>
-            © {new Date().getFullYear()} FC BOOST PRO. All rights reserved. Not affiliated with Electronic Arts Inc.
+            © 2026 FC BOOST PRO. All rights reserved. Not affiliated with Electronic Arts Inc.
           </div>
           <div className="flex items-center space-x-4">
             <span className="hover:text-gray-300 cursor-pointer">Safety & Rules</span>

@@ -1,7 +1,23 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { UT_CHAMPIONS_RANKS, DIVISION_RIVALS_TIERS, PLATFORMS, ADDONS_DATA } from '../data/mockData';
-import { Trophy, Zap, Coins, Check, ArrowRight, ShieldCheck, Flame } from 'lucide-react';
+import {
+  Trophy,
+  Zap,
+  Coins,
+  Check,
+  ArrowRight,
+  ShieldCheck,
+  User,
+  Gamepad2,
+  Gamepad,
+  Monitor,
+  Crosshair,
+  MessageCircle,
+  ShoppingBag,
+  CreditCard,
+  Headphones,
+} from 'lucide-react';
 
 export default function QuickCalculator() {
   const { addToCart, setIsCartOpen, openContactModal } = useApp();
@@ -16,14 +32,14 @@ export default function QuickCalculator() {
   const [selectedRank, setSelectedRank] = useState(UT_CHAMPIONS_RANKS[0]);
 
   // Rivals State
-  const [currentDiv, setCurrentDiv] = useState(6);
+  const [currentDiv, setCurrentDiv] = useState(5);
   const [targetDiv, setTargetDiv] = useState(1);
   const [isWeekly7Wins, setIsWeekly7Wins] = useState(false);
 
   // Coins State
   const [coinAmountK, setCoinAmountK] = useState(500); // 500k coins
 
-  // Addons State
+  // Addons State (Express start active by default as shown in image)
   const [selectedAddons, setSelectedAddons] = useState(['express']);
 
   const toggleAddon = (addonId) => {
@@ -48,7 +64,6 @@ export default function QuickCalculator() {
         base = Math.max(19.99, diff * 0.95);
       }
     } else if (activeTab === 'coins') {
-      // e.g. $12.50 per 100k
       base = (coinAmountK / 100) * 11.8;
     }
 
@@ -75,8 +90,8 @@ export default function QuickCalculator() {
     let details = '';
 
     if (activeTab === 'champions') {
-      serviceName = `UT Champions: ${selectedRank.name}`;
-      details = `${selectedRank.wins} • Platform: ${selectedPlatform.toUpperCase()} • Addons: ${selectedAddons.join(', ') || 'None'}`;
+      serviceName = `FUT Champions Finals`;
+      details = `Rank ${selectedRank.rankNumber} (${selectedRank.wins}) • Div ${currentDiv} → Div ${targetDiv} • Platform: ${selectedPlatform.toUpperCase()}`;
     } else if (activeTab === 'rivals') {
       serviceName = isWeekly7Wins
         ? `Division Rivals: Weekly 7 Wins (Div ${currentDiv})`
@@ -107,8 +122,8 @@ export default function QuickCalculator() {
     let details = '';
 
     if (activeTab === 'champions') {
-      serviceName = `UT Champions: ${selectedRank.name}`;
-      details = `${selectedRank.wins} • Platform: ${selectedPlatform.toUpperCase()} • Addons: ${selectedAddons.join(', ') || 'None'}`;
+      serviceName = `FUT Champions Finals`;
+      details = `Target Rank: Rank ${selectedRank.rankNumber} (${selectedRank.wins}) • Current Div: ${currentDiv} • Target Div: ${targetDiv} • Platform: ${selectedPlatform.toUpperCase()}`;
     } else if (activeTab === 'rivals') {
       serviceName = isWeekly7Wins
         ? `Division Rivals: Weekly 7 Wins (Div ${currentDiv})`
@@ -148,41 +163,41 @@ export default function QuickCalculator() {
         <div className="bg-[#141824] border border-[#262B3D] rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
           
           {/* Top Service Tabs */}
-          <div className="flex overflow-x-auto pb-4 sm:pb-6 border-b border-[#262B3D] gap-2 sm:flex-wrap scrollbar-none">
+          <div className="flex overflow-x-auto pb-4 sm:pb-6 border-b border-[#262B3D] gap-2.5 sm:flex-wrap scrollbar-none">
             <button
               onClick={() => setActiveTab('champions')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[42px] ${
+              className={`px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[44px] ${
                 activeTab === 'champions'
-                  ? 'bg-[#00F59B] text-[#0B0D13] shadow-lg shadow-[#00F59B]/20 font-black'
+                  ? 'bg-[#00F59B] text-[#0B0D13] font-black shadow-lg shadow-[#00F59B]/20'
                   : 'bg-[#1C2234] text-gray-300 hover:text-white hover:bg-[#262B3D]'
               }`}
             >
               <Trophy className="w-4 h-4 shrink-0" />
-              <span>UT Champions Finals</span>
+              <span>UT CHAMPIONS FINALS</span>
             </button>
 
             <button
               onClick={() => setActiveTab('rivals')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[42px] ${
+              className={`px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[44px] ${
                 activeTab === 'rivals'
-                  ? 'bg-[#00F59B] text-[#0B0D13] shadow-lg shadow-[#00F59B]/20 font-black'
+                  ? 'bg-[#00F59B] text-[#0B0D13] font-black shadow-lg shadow-[#00F59B]/20'
                   : 'bg-[#1C2234] text-gray-300 hover:text-white hover:bg-[#262B3D]'
               }`}
             >
               <Zap className="w-4 h-4 shrink-0" />
-              <span>Division Rivals Boost</span>
+              <span>DIVISION RIVALS BOOST</span>
             </button>
 
             <button
               onClick={() => setActiveTab('coins')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-[11px] sm:text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[42px] ${
+              className={`px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shrink-0 min-h-[44px] ${
                 activeTab === 'coins'
-                  ? 'bg-[#00F59B] text-[#0B0D13] shadow-lg shadow-[#00F59B]/20 font-black'
+                  ? 'bg-[#00F59B] text-[#0B0D13] font-black shadow-lg shadow-[#00F59B]/20'
                   : 'bg-[#1C2234] text-gray-300 hover:text-white hover:bg-[#262B3D]'
               }`}
             >
               <Coins className="w-4 h-4 shrink-0" />
-              <span>Buy EAFC Coins</span>
+              <span>BUY EAFC COINS</span>
             </button>
           </div>
 
@@ -192,61 +207,100 @@ export default function QuickCalculator() {
             {/* LEFT 8 COLS: CONFIGURATOR CONTROLS */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* 1. Platform Selector */}
+              {/* STEP 1: Platform Selector */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 block mb-2.5">
-                  Step 1: Select Your Platform
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {PLATFORMS.map((plat) => (
-                    <button
-                      key={plat.id}
-                      onClick={() => setSelectedPlatform(plat.id)}
-                      className={`p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                        selectedPlatform === plat.id
-                          ? 'bg-[#0B0D13] border-[#00F59B] text-white shadow-md shadow-[#00F59B]/10'
-                          : 'bg-[#1C2234] border-[#262B3D] text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      <span className="text-xs font-bold uppercase tracking-wider block">
-                        {plat.shortName}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 2. Service Specific Controls */}
-              {activeTab === 'champions' && (
-                <div>
-                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 block mb-2.5">
-                    Step 2: Choose Target Weekend League Rank
+                <div className="flex items-center space-x-2 mb-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                    1
+                  </span>
+                  <label className="text-xs font-black uppercase tracking-wider text-white">
+                    STEP 1: SELECT YOUR PLATFORM
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {UT_CHAMPIONS_RANKS.map((rank) => (
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {PLATFORMS.map((plat) => {
+                    const isSelected = selectedPlatform === plat.id;
+                    return (
                       <button
-                        key={rank.id}
-                        onClick={() => setSelectedRank(rank)}
-                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
-                          selectedRank.id === rank.id
-                            ? 'bg-[#0B0D13] border-[#00F59B] text-white shadow-md'
+                        key={plat.id}
+                        onClick={() => setSelectedPlatform(plat.id)}
+                        className={`p-3.5 rounded-xl border flex items-center justify-center space-x-2 relative transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#0B0D13] border-[#00F59B] text-white shadow-md shadow-[#00F59B]/10 ring-1 ring-[#00F59B]/40'
                             : 'bg-[#1C2234] border-[#262B3D] text-gray-400 hover:text-white'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-black text-white">Rank {rank.rankNumber}</span>
-                          <span className="text-[10px] text-[#00F59B] font-bold">${rank.basePrice}</span>
-                        </div>
-                        <span className="text-[11px] text-gray-300 block font-semibold">{rank.wins}</span>
-                        <span className="text-[9px] text-gray-400 block mt-1">{rank.estimatedTime}</span>
+                        {plat.id === 'ps5' && <Gamepad2 className="w-4 h-4 text-white shrink-0" />}
+                        {plat.id === 'xbox' && <Gamepad className="w-4 h-4 text-white shrink-0" />}
+                        {plat.id === 'pc' && <Monitor className="w-4 h-4 text-white shrink-0" />}
+                        <span className="text-xs font-bold uppercase tracking-wider">
+                          {plat.shortName}
+                        </span>
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#00F59B] text-[#0B0D13] flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        )}
                       </button>
-                    ))}
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* STEP 2: Service Specific Controls */}
+              {activeTab === 'champions' && (
+                <div>
+                  <div className="flex items-center space-x-2 mb-2.5">
+                    <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <label className="text-xs font-black uppercase tracking-wider text-white">
+                      STEP 2: CHOOSE TARGET WEEKEND LEAGUE RANK
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+                    {UT_CHAMPIONS_RANKS.map((rank) => {
+                      const isSelected = selectedRank.id === rank.id;
+                      return (
+                        <button
+                          key={rank.id}
+                          onClick={() => setSelectedRank(rank)}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
+                            isSelected
+                              ? 'bg-[#0B0D13] border-[#00F59B] text-white shadow-md shadow-[#00F59B]/20 ring-1 ring-[#00F59B]'
+                              : 'bg-[#1C2234] border-[#262B3D] text-gray-400 hover:text-white hover:border-gray-500'
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#00F59B] text-[#0B0D13] flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                          )}
+                          <div className="text-xs font-black text-white">Rank {rank.rankNumber}</div>
+                          <div className="text-[11px] text-gray-300 font-semibold">{rank.wins}</div>
+                          <div className="text-[11px] text-[#00F59B] font-black mt-2">
+                            ${rank.basePrice.toFixed(2)}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
               {activeTab === 'rivals' && (
                 <div className="space-y-4">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <label className="text-xs font-black uppercase tracking-wider text-white">
+                      STEP 2: CHOOSE RIVALS BOOST MODE
+                    </label>
+                  </div>
+
                   <div className="flex items-center space-x-3 pb-2">
                     <button
                       onClick={() => setIsWeekly7Wins(false)}
@@ -269,59 +323,26 @@ export default function QuickCalculator() {
                       Weekly 7 Wins Boost ($34.99)
                     </button>
                   </div>
-
-                  {!isWeekly7Wins ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">
-                          Current Division
-                        </label>
-                        <select
-                          value={currentDiv}
-                          onChange={(e) => setCurrentDiv(Number(e.target.value))}
-                          className="w-full bg-[#1C2234] border border-[#262B3D] rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-[#00F59B]"
-                        >
-                          {DIVISION_RIVALS_TIERS.map((tier) => (
-                            <option key={tier.id} value={tier.id} className="bg-[#141824]">
-                              {tier.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">
-                          Target Division
-                        </label>
-                        <select
-                          value={targetDiv}
-                          onChange={(e) => setTargetDiv(Number(e.target.value))}
-                          className="w-full bg-[#1C2234] border border-[#262B3D] rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-[#00F59B]"
-                        >
-                          {DIVISION_RIVALS_TIERS.filter((t) => t.id <= currentDiv).map((tier) => (
-                            <option key={tier.id} value={tier.id} className="bg-[#141824]">
-                              {tier.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 rounded-xl bg-[#0B0D13] border border-[#262B3D] text-xs text-gray-300 space-y-1">
-                      <p className="font-bold text-white">Guaranteed 7 Weekly Wins in Your Current Division</p>
-                      <p className="text-gray-400">
-                        Maximized upgrade rewards before Thursday weekly reset. Fast completion within 2-4 hours.
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
 
               {activeTab === 'coins' && (
                 <div className="space-y-4">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <label className="text-xs font-black uppercase tracking-wider text-white">
+                      STEP 2: SELECT COIN QUANTITY
+                    </label>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-black uppercase tracking-wider text-gray-400">
-                      Coin Quantity: <span className="text-white text-sm font-black">{coinAmountK >= 1000 ? (coinAmountK/1000).toFixed(1) + 'M' : coinAmountK + 'K'} Coins</span>
+                      Coin Quantity:{' '}
+                      <span className="text-white text-sm font-black">
+                        {coinAmountK >= 1000 ? (coinAmountK / 1000).toFixed(1) + 'M' : coinAmountK + 'K'} Coins
+                      </span>
                     </label>
                     <span className="text-xs font-bold text-[#00F59B]">100% EA 5% Tax Covered</span>
                   </div>
@@ -354,40 +375,107 @@ export default function QuickCalculator() {
                 </div>
               )}
 
-              {/* 3. Add-on Options */}
+              {/* STEP 3: Current & Target Division */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 block mb-2.5">
-                  Step 3: Optional Speed & Security Add-ons
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center space-x-2 mb-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                    3
+                  </span>
+                  <label className="text-xs font-black uppercase tracking-wider text-white">
+                    STEP 3: SELECT CURRENT & TARGET DIVISION
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 block mb-1.5 uppercase tracking-wider">
+                      CURRENT DIVISION
+                    </label>
+                    <select
+                      value={currentDiv}
+                      onChange={(e) => setCurrentDiv(Number(e.target.value))}
+                      className="w-full bg-[#1C2234] border border-[#262B3D] rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-[#00F59B]"
+                    >
+                      {DIVISION_RIVALS_TIERS.map((tier) => (
+                        <option key={tier.id} value={tier.id} className="bg-[#141824]">
+                          {tier.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 block mb-1.5 uppercase tracking-wider">
+                      TARGET DIVISION
+                    </label>
+                    <select
+                      value={targetDiv}
+                      onChange={(e) => setTargetDiv(Number(e.target.value))}
+                      className="w-full bg-[#1C2234] border border-[#262B3D] rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-[#00F59B]"
+                    >
+                      {DIVISION_RIVALS_TIERS.map((tier) => (
+                        <option key={tier.id} value={tier.id} className="bg-[#141824]">
+                          {tier.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* STEP 4: Optional Add-ons */}
+              <div>
+                <div className="flex items-center space-x-2 mb-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#00F59B] text-[#0B0D13] text-[11px] font-black flex items-center justify-center shrink-0">
+                    4
+                  </span>
+                  <label className="text-xs font-black uppercase tracking-wider text-white">
+                    STEP 4: OPTIONAL ADD-ONS
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {ADDONS_DATA.map((addon) => {
                     const isChecked = selectedAddons.includes(addon.id);
                     return (
                       <div
                         key={addon.id}
                         onClick={() => toggleAddon(addon.id)}
-                        className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all ${
                           isChecked
-                            ? 'bg-[#0B0D13] border-[#00F59B]/60 text-white shadow-sm'
+                            ? 'bg-[#0B0D13] border-[#00F59B] shadow-md shadow-[#00F59B]/10 ring-1 ring-[#00F59B]/40'
                             : 'bg-[#1C2234] border-[#262B3D] text-gray-400 hover:text-white'
                         }`}
                       >
-                        <div className="space-y-0.5">
-                          <div className="flex items-center space-x-1.5">
-                            <span className="text-xs font-bold text-white">{addon.name}</span>
-                            {addon.badge && (
-                              <span className="text-[8px] font-black uppercase px-1 py-0.2 rounded bg-[#00F59B]/20 text-[#00F59B]">
-                                {addon.badge}
-                              </span>
-                            )}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="w-8 h-8 rounded-lg bg-[#141824] border border-[#262B3D] flex items-center justify-center text-[#00F59B]">
+                              {addon.id === 'express' && <Zap className="w-4 h-4 text-[#00F59B]" />}
+                              {addon.id === 'tactics' && <Crosshair className="w-4 h-4 text-[#00F59B]" />}
+                              {addon.id === 'duo' && <Gamepad2 className="w-4 h-4 text-[#00F59B]" />}
+                            </div>
+
+                            <div
+                              className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                                isChecked
+                                  ? 'bg-[#00F59B] border-[#00F59B] text-[#0B0D13]'
+                                  : 'border-[#262B3D]'
+                              }`}
+                            >
+                              {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
                           </div>
-                          <span className="text-[10px] text-gray-400 block">{addon.description}</span>
+
+                          <div>
+                            <div className="text-xs font-bold text-white">{addon.name}</div>
+                            <div className="text-[10px] text-gray-400 mt-1 leading-snug">
+                              {addon.description}
+                            </div>
+                          </div>
                         </div>
 
-                        <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border ${
-                          isChecked ? 'bg-[#00F59B] border-[#00F59B] text-[#0B0D13]' : 'border-[#262B3D]'
-                        }`}>
-                          {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        <div className="text-xs font-black text-[#00F59B] pt-2 mt-2 border-t border-[#262B3D]/60">
+                          + ${addon.price.toFixed(2)}
                         </div>
                       </div>
                     );
@@ -397,83 +485,137 @@ export default function QuickCalculator() {
 
             </div>
 
-            {/* RIGHT 4 COLS: ORDER SUMMARY CARD */}
-            <div className="lg:col-span-4 bg-[#0B0D13] border border-[#262B3D] rounded-2xl p-6 flex flex-col justify-between space-y-6">
+            {/* RIGHT 4 COLS: ORDER SUMMARY CARD (MATCHES IMAGE 5) */}
+            <div className="lg:col-span-4 bg-[#0B0D13] border border-[#262B3D] rounded-2xl p-6 flex flex-col justify-between space-y-6 shadow-2xl">
               <div className="space-y-4">
+                
+                {/* Header */}
                 <div className="flex items-center justify-between pb-3 border-b border-[#262B3D]">
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-400">
-                    Configuration Summary
-                  </span>
-                  <span className="text-[10px] text-[#00F59B] font-bold bg-[#00F59B]/10 px-2 py-0.5 rounded">
-                    VPN INCLUDED
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 rounded-full bg-[#141824] border border-[#262B3D] flex items-center justify-center text-[#00F59B]">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-wider text-white">
+                      ORDER SUMMARY
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-[#00F59B] font-bold border border-[#00F59B]/30 px-2 py-0.5 rounded inline-flex items-center space-x-1">
+                    <ShieldCheck className="w-3 h-3 shrink-0" />
+                    <span>SAFE & SECURE</span>
                   </span>
                 </div>
 
-                <div className="space-y-2 text-xs">
+                {/* Details */}
+                <div className="space-y-2.5 text-xs">
                   <div className="flex justify-between text-gray-300">
                     <span className="text-gray-400">Service:</span>
                     <span className="font-bold text-white text-right">
                       {activeTab === 'champions'
-                        ? selectedRank.name
+                        ? 'FUT Champions Finals'
                         : activeTab === 'rivals'
-                        ? isWeekly7Wins ? 'Weekly 7 Wins' : `Div ${currentDiv} → Div ${targetDiv}`
-                        : `${coinAmountK}K Coins`}
+                        ? 'Division Rivals Boost'
+                        : 'Buy EAFC Coins'}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-gray-300">
                     <span className="text-gray-400">Platform:</span>
-                    <span className="font-bold text-white uppercase">{selectedPlatform}</span>
-                  </div>
-
-                  <div className="flex justify-between text-gray-300">
-                    <span className="text-gray-400">Active Add-ons:</span>
-                    <span className="font-bold text-[#00F59B]">{selectedAddons.length} Selected</span>
-                  </div>
-
-                  <div className="flex justify-between text-gray-300">
-                    <span className="text-gray-400">Estimated Delivery:</span>
-                    <span className="font-bold text-white">
-                      {activeTab === 'champions' ? selectedRank.estimatedTime : '2 - 4 Hours'}
+                    <span className="font-bold text-white uppercase">
+                      {PLATFORMS.find((p) => p.id === selectedPlatform)?.shortName || selectedPlatform}
                     </span>
+                  </div>
+
+                  {activeTab === 'champions' && (
+                    <div className="flex justify-between text-gray-300">
+                      <span className="text-gray-400">Target Rank:</span>
+                      <span className="font-bold text-white">
+                        Rank {selectedRank.rankNumber} ({selectedRank.wins})
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-gray-300">
+                    <span className="text-gray-400">Current Division:</span>
+                    <span className="font-bold text-white">Division {currentDiv}</span>
+                  </div>
+
+                  <div className="flex justify-between text-gray-300">
+                    <span className="text-gray-400">Target Division:</span>
+                    <span className="font-bold text-white">Division {targetDiv}</span>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#262B3D]/70">
+                    <span className="text-gray-400 block mb-1.5 font-medium">Active Add-ons:</span>
+                    {selectedAddons.length === 0 ? (
+                      <span className="text-gray-500 italic text-[11px]">None</span>
+                    ) : (
+                      <div className="space-y-1">
+                        {selectedAddons.map((addonId) => {
+                          const a = ADDONS_DATA.find((item) => item.id === addonId);
+                          if (!a) return null;
+                          return (
+                            <div key={addonId} className="flex justify-between text-[11px]">
+                              <span className="text-gray-300">1 × {a.name}</span>
+                              <span className="text-[#00F59B] font-bold">+ ${a.price.toFixed(2)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Total Price Display */}
-                <div className="pt-4 border-t border-[#262B3D] flex items-baseline justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase block">Total in USD</span>
-                    <span className="text-3xl font-black text-[#00F59B] tracking-tight">
-                      ${currentPrice}
-                    </span>
+                <div className="pt-4 border-t border-[#262B3D]">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase block">Total Price</span>
+                  <div className="text-3xl font-black text-[#00F59B] tracking-tight mt-0.5">
+                    ${currentPrice} <span className="text-sm font-bold text-gray-400">USD</span>
                   </div>
-                  <span className="text-[11px] text-gray-400">Fixed USD Rate</span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2 pt-4">
+              <div className="space-y-3 pt-2">
                 <button
                   onClick={handleOrderWithWhatsAppDiscord}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#5865F2] hover:opacity-95 text-[#0B0D13] font-black text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shadow-lg shadow-[#00F59B]/20 cursor-pointer"
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#25D366] hover:opacity-95 text-[#0B0D13] font-black text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shadow-lg shadow-[#00F59B]/20 cursor-pointer"
                 >
-                  <span>Order Now (WhatsApp / Discord)</span>
+                  <MessageCircle className="w-4 h-4" />
+                  <span>ORDER NOW (WHATSAPP / DISCORD)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={handleAddToCart}
-                    className="py-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+                    className="py-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center space-x-1"
                   >
-                    Add to Cart
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>ADD TO CART</span>
                   </button>
                   <button
                     onClick={handleInstantCheckout}
-                    className="py-2.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] font-black text-xs uppercase tracking-wider flex items-center justify-center space-x-1 transition-all cursor-pointer"
+                    className="py-2.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] font-black text-xs uppercase tracking-wider flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-md shadow-[#00F59B]/10"
                   >
-                    <span>Instant Pay</span>
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span>INSTANT PAY</span>
                   </button>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#262B3D]/70 text-[10px] text-gray-400 text-center">
+                  <div className="flex flex-col items-center">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#00F59B] mb-0.5" />
+                    <span>100% Safe & Secure</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Zap className="w-3.5 h-3.5 text-[#00F59B] mb-0.5" />
+                    <span>Fast Delivery</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Headphones className="w-3.5 h-3.5 text-[#00F59B] mb-0.5" />
+                    <span>24/7 Support</span>
+                  </div>
                 </div>
               </div>
 

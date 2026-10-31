@@ -132,7 +132,7 @@ export default function AllServicesPage() {
                       </span>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       <button
                         onClick={() => {
                           openContactModal({
@@ -144,22 +144,22 @@ export default function AllServicesPage() {
                         }}
                         className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#5865F2] hover:opacity-95 text-[#0B0D13] text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#00F59B]/10 flex items-center justify-center space-x-1.5"
                       >
-                        <span>Order with WhatsApp / Discord</span>
+                        <span>ORDER WITH WHATSAPP / DISCORD</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
 
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => handleBuy(srv, false)}
-                          className="py-2 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                          className="py-2.5 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-pointer text-center"
                         >
                           Add to Cart
                         </button>
                         <button
                           onClick={() => handleBuy(srv, true)}
-                          className="py-2 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] text-xs font-black uppercase transition-colors cursor-pointer"
+                          className="py-2.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] text-xs font-black uppercase tracking-wider transition-colors cursor-pointer text-center"
                         >
-                          Checkout
+                          CHECKOUT
                         </button>
                       </div>
                     </div>

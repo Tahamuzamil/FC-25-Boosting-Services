@@ -1,9 +1,9 @@
-import { Shield, Zap, Star, Trophy, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { Shield, Headphones, Trophy, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getAssetUrl } from '../utils/assets';
 
 export default function Hero() {
-  const { setCurrentPage } = useApp();
+  const { setCurrentPage, openContactModal } = useApp();
 
   return (
     <section className="relative w-full pt-8 sm:pt-12 pb-16 sm:pb-20 overflow-hidden select-none">
@@ -34,18 +34,14 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Top Floating Guarantee Badges */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
+        <div className="flex flex-wrap items-center gap-2.5 mb-6">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#141824] border border-[#00F59B]/30 text-[#00F59B] text-[10px] sm:text-xs font-bold tracking-wide shadow-sm">
             <Shield className="w-3.5 h-3.5 shrink-0" />
             <span>100% Ban-Free (VPN Encrypted)</span>
           </div>
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#141824] border border-[#262B3D] text-gray-300 text-[10px] sm:text-xs font-semibold">
-            <Zap className="w-3.5 h-3.5 text-[#FFB800] shrink-0" />
+            <Headphones className="w-3.5 h-3.5 text-[#00F59B] shrink-0" />
             <span>24/7 Live Support</span>
-          </div>
-          <div className="hidden xs:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#141824] border border-[#262B3D] text-gray-300 text-[10px] sm:text-xs font-semibold">
-            <Star className="w-3.5 h-3.5 fill-[#FFB800] text-[#FFB800] shrink-0" />
-            <span>5-Star Rated (4.9/5)</span>
           </div>
         </div>
 
@@ -55,9 +51,9 @@ export default function Hero() {
           {/* Left Column (Headline + CTAs) */}
           <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left">
             <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-[1.12]">
-              FC Boosting Services – <br className="hidden xs:inline" />
+              FC Boosting Services <br className="hidden xs:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F59B] via-[#85FFBD] to-white">
-                Fast, Safe & Pro
+                – Fast, Safe & Pro
               </span>
             </h1>
 
@@ -138,13 +134,23 @@ export default function Hero() {
                   <div className="absolute top-2.5 left-2.5">
                     <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-[#00F59B]/50 text-[#00F59B] text-[10px] font-black uppercase">
                       <Trophy className="w-3 h-3 text-[#FFB800]" />
-                      <span>RANK 1 (19-20 WINS)</span>
+                      <span>RANK 1 (15-0)</span>
                     </span>
                   </div>
 
                   <div className="absolute top-2.5 right-2.5">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#FFB800] text-[#0B0D13] text-[10px] font-black uppercase shadow-lg">
                       ★ 91 OVR PRO
+                    </span>
+                  </div>
+
+                  {/* Centered 15-0 FUT CHAMPIONS Graphic */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-4xl sm:text-5xl font-black text-white italic tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                      15-0
+                    </span>
+                    <span className="text-xs sm:text-sm font-black text-[#00F59B] tracking-[0.25em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                      FUT CHAMPIONS
                     </span>
                   </div>
                 </div>
@@ -156,7 +162,7 @@ export default function Hero() {
                         MOST REQUESTED SERVICE
                       </span>
                       <h3 className="text-sm sm:text-base font-black text-white uppercase italic">
-                        UT Champions Finals 20-0
+                        FUT CHAMPIONS 15-0
                       </h3>
                       <p className="text-[11px] text-gray-400">
                         Top Rewards Kept • Piloted VPN • Live Discord Stream
@@ -168,25 +174,20 @@ export default function Hero() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="pt-1">
                     <button
                       onClick={() => {
-                        setCurrentPage('ut-champions');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        openContactModal({
+                          serviceName: 'FUT Champions 15-0 Boost',
+                          details: 'Rank 1 (15-0) • Piloted VPN • Live Discord Stream • Top Rewards Kept',
+                          price: 24.99,
+                          platform: 'ps5',
+                        });
                       }}
-                      className="w-full py-2.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] font-black text-xs uppercase tracking-wider transition-all text-center flex items-center justify-center space-x-1 cursor-pointer"
+                      className="w-full py-3 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] font-black text-xs uppercase tracking-wider transition-all text-center flex items-center justify-center space-x-1.5 shadow-lg shadow-[#00F59B]/20 cursor-pointer"
                     >
-                      <span>Order Rank 1</span>
+                      <span>ORDER RANK 1</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCurrentPage('coins');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="w-full py-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider transition-all text-center cursor-pointer"
-                    >
-                      Buy Coins
                     </button>
                   </div>
                 </div>
@@ -204,7 +205,7 @@ export default function Hero() {
                       PS5
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-white">Rank 1 (19 Wins) Completed</div>
+                      <div className="text-xs font-bold text-white">Rank 1 (15-0) Completed</div>
                       <div className="text-[10px] text-gray-400">Customer: J*** (Germany) • Pro: Kaiser</div>
                     </div>
                   </div>

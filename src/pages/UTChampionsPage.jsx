@@ -9,7 +9,7 @@ export default function UTChampionsPage() {
 
   const [selectedRank, setSelectedRank] = useState(UT_CHAMPIONS_RANKS[0]);
   const [selectedPlatform, setSelectedPlatform] = useState('ps5');
-  const [selectedAddons, setSelectedAddons] = useState(['express', 'stream']);
+  const [selectedAddons, setSelectedAddons] = useState(['express']);
   const [loginMethod, setLoginMethod] = useState('account'); // 'account' | 'selfplay'
   const [gamerTag, setGamerTag] = useState('');
 
@@ -78,7 +78,7 @@ export default function UTChampionsPage() {
             </h1>
 
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-              Secure guaranteed Rank 1 to Rank 7 finishes in EA Sports FC Ultimate Team Weekend League. Played by verified Top 200 FIFA Global Series pros with dedicated regional VPN stealth protection.
+              Secure guaranteed Rank 1 to Rank 15 finishes in EA Sports FC Ultimate Team Weekend League. Played by verified Top 200 FIFA Global Series pros with dedicated regional VPN stealth protection.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2 text-xs text-gray-300">
