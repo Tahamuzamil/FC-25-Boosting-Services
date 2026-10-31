@@ -15,6 +15,7 @@ import {
   Coins,
   GraduationCap,
   Sparkles,
+  Target,
   ExternalLink,
   Sun,
   Moon,
@@ -79,49 +80,27 @@ export default function Navbar() {
       badgeColor: 'text-[#FFB800] bg-[#FFB800]/10 border-[#FFB800]/30',
     },
     {
-      id: 'coins',
-      title: 'Buy EAFC Coins',
-      desc: 'Comfort trade 100% EA tax covered',
-      icon: Coins,
-      badge: 'INSTANT',
-      badgeColor: 'text-[#00F59B] bg-[#00F59B]/10 border-[#00F59B]/30',
+      id: 'coaching',
+      title: '1-on-1 Pro Coaching',
+      desc: 'Tactics, VODs & private screen share sessions',
+      icon: GraduationCap,
+      badge: 'ELITE PROS',
+      badgeColor: 'text-[#A855F7] bg-[#A855F7]/10 border-[#A855F7]/30',
     },
     {
       id: 'all-services',
       title: 'Champions Play-Offs',
       desc: 'Direct qualification to Weekend League',
       icon: Flame,
+      badge: 'GUARANTEED',
+      badgeColor: 'text-[#00D6FF] bg-[#00D6FF]/10 border-[#00D6FF]/30',
+    },
+    {
+      id: 'all-services',
+      title: 'Live Events & Milestones',
+      desc: 'Seasonal XP, Evolutions & SBC challenges',
+      icon: Target,
       badge: null,
-    },
-    {
-      id: 'all-services',
-      title: 'Mastery Swaps & Objectives',
-      desc: 'Unlock Season passes & special cards',
-      icon: Sparkles,
-      badge: null,
-    },
-    {
-      id: 'all-services',
-      title: 'UT Draft Win Boost',
-      desc: 'Guaranteed 4-win draft rewards',
-      icon: Award,
-      badge: null,
-    },
-    {
-      id: 'all-services',
-      title: '1-on-1 Pro Coaching',
-      desc: 'Tactics & private screen share reviews',
-      icon: GraduationCap,
-      badge: 'PROS',
-      badgeColor: 'text-[#FF3B30] bg-[#FF3B30]/10 border-[#FF3B30]/30',
-    },
-    {
-      id: 'all-services',
-      title: 'Special Bundles & Discounts',
-      desc: 'Combined packages up to 35% off',
-      icon: ShieldCheck,
-      badge: 'SAVE 35%',
-      badgeColor: 'text-[#00F59B] bg-[#00F59B]/15 border-[#00F59B]/40',
     },
   ];
 
@@ -247,7 +226,7 @@ export default function Navbar() {
               <button
                 onClick={() => setIsServicesOpen(!isServicesOpen)}
                 className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all inline-flex items-center space-x-1.5 ${
-                  isServicesOpen || ['ut-champions', 'division-rivals', 'coins', 'all-services'].includes(currentPage)
+                  isServicesOpen || ['ut-champions', 'division-rivals', 'all-services', 'coaching'].includes(currentPage)
                     ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
                     : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
                 }`}
@@ -315,14 +294,25 @@ export default function Navbar() {
             </button>
 
             <button
-              onClick={() => handleNavClick('coins')}
+              onClick={() => handleNavClick('coaching')}
               className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-                currentPage === 'coins'
+                currentPage === 'coaching'
                   ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
                   : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
               }`}
             >
-              Buy Coins
+              Coaching
+            </button>
+
+            <button
+              onClick={() => handleNavClick('about')}
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+                currentPage === 'about'
+                  ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
+                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+              }`}
+            >
+              About Us
             </button>
           </div>
 
@@ -433,13 +423,23 @@ export default function Navbar() {
                 </button>
 
                 <button
-                  onClick={() => handleNavClick('coins')}
+                  onClick={() => handleNavClick('coaching')}
                   className={`p-3 rounded-xl border text-left flex items-center justify-between ${
-                    currentPage === 'coins' ? 'bg-[#141824] border-[#00F59B] text-[#00F59B]' : 'bg-[#141824]/60 border-[#262B3D] text-white'
+                    currentPage === 'coaching' ? 'bg-[#141824] border-[#00F59B] text-[#00F59B]' : 'bg-[#141824]/60 border-[#262B3D] text-white'
                   }`}
                 >
-                  <span>Buy Coins</span>
-                  <span className="text-[10px] text-[#00F59B]">🪙</span>
+                  <span>Pro Coaching</span>
+                  <span className="text-[10px] text-[#A855F7]">🎓</span>
+                </button>
+
+                <button
+                  onClick={() => handleNavClick('about')}
+                  className={`p-3 rounded-xl border text-left flex items-center justify-between col-span-2 ${
+                    currentPage === 'about' ? 'bg-[#141824] border-[#00F59B] text-[#00F59B]' : 'bg-[#141824]/60 border-[#262B3D] text-white'
+                  }`}
+                >
+                  <span>About FC BOOST PRO</span>
+                  <span className="text-[10px] text-[#00F59B]">🛡️</span>
                 </button>
               </div>
 
@@ -450,10 +450,10 @@ export default function Navbar() {
               >
                 <div className="flex items-center space-x-2">
                   <Sparkles className="w-4 h-4 text-[#FFB800]" />
-                  <span>All FC Packages & Bundles</span>
+                  <span>All FC Packages & Play-Offs</span>
                 </div>
                 <span className="text-[9px] text-[#00F59B] bg-[#00F59B]/10 px-2 py-0.5 rounded">
-                  SAVE 35%
+                  GUARANTEED
                 </span>
               </button>
 

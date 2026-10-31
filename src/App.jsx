@@ -6,6 +6,8 @@ import UTChampionsPage from './pages/UTChampionsPage';
 import DivisionRivalsPage from './pages/DivisionRivalsPage';
 import CoinsBoostingPage from './pages/CoinsBoostingPage';
 import AllServicesPage from './pages/AllServicesPage';
+import AboutUsPage from './pages/AboutUsPage';
+import CoachingPage from './pages/CoachingPage';
 import AdminOrderDashboard from './components/AdminOrderDashboard';
 import CartDrawer from './components/CartDrawer';
 import AuthModal from './components/AuthModal';
@@ -28,6 +30,8 @@ function MainLayout() {
         {currentPage === 'division-rivals' && <DivisionRivalsPage />}
         {currentPage === 'coins' && <CoinsBoostingPage />}
         {currentPage === 'all-services' && <AllServicesPage />}
+        {currentPage === 'about' && <AboutUsPage />}
+        {currentPage === 'coaching' && <CoachingPage />}
         {currentPage === 'admin' && <AdminOrderDashboard />}
       </main>
 

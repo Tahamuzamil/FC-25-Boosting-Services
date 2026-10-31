@@ -135,26 +135,26 @@ export default function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => { setCurrentPage('coins'); window.scrollTo(0,0); }}
-                  className="hover:text-[#00F59B] transition-colors"
-                >
-                  Buy EA Sports FC Coins
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setCurrentPage('all-services'); window.scrollTo(0,0); }}
-                  className="hover:text-[#00F59B] transition-colors"
-                >
-                  Play-Offs & Draft Streak
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setCurrentPage('all-services'); window.scrollTo(0,0); }}
+                  onClick={() => { setCurrentPage('coaching'); window.scrollTo(0,0); }}
                   className="hover:text-[#00F59B] transition-colors"
                 >
                   1-on-1 Pro Coaching Sessions
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => { setCurrentPage('all-services'); window.scrollTo(0,0); }}
+                  className="hover:text-[#00F59B] transition-colors"
+                >
+                  Play-Offs & Live Events
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => { setCurrentPage('about'); window.scrollTo(0,0); }}
+                  className="hover:text-[#00F59B] transition-colors"
+                >
+                  About FC BOOST PRO
                 </button>
               </li>
             </ul>

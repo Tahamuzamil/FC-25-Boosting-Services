@@ -54,7 +54,7 @@ export default function AllServicesPage() {
               All FC 25 & FC 26 Boosting Packages
             </h1>
             <p className="text-sm sm:text-base text-gray-300">
-              Browse special bundle deals, Draft wins, Coaching sessions, and Milestone player objectives.
+              Browse Champions Play-Offs, Live Events, 1-on-1 Pro Coaching, and Milestone challenges.
             </p>
           </div>
         </div>
@@ -133,6 +133,19 @@ export default function AllServicesPage() {
                     </div>
 
                     <div className="space-y-2.5">
+                      {srv.id === 'pro-coaching' && (
+                        <button
+                          onClick={() => {
+                            setCurrentPage('coaching');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-[#A855F7]/20 hover:bg-[#A855F7]/30 border border-[#A855F7]/50 text-[#C084FC] hover:text-white text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-md"
+                        >
+                          <span>Explore Pro Coaching Masterclass</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
                       <button
                         onClick={() => {
                           openContactModal({

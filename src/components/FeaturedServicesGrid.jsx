@@ -66,7 +66,7 @@ export default function FeaturedServicesGrid() {
     },
     {
       id: 'pro-coaching',
-      page: 'all-services',
+      page: 'coaching',
       title: 'PRO COACHING',
       tagline: 'Learn from top players and level up your skills with personalized coaching sessions.',
       image: getAssetUrl('images/player-celebration.jpg'),
