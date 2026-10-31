@@ -154,6 +154,27 @@ export default function OrderTrackerModal() {
                   </div>
                 </div>
 
+                {/* Match Logs History from Pro Booster */}
+                {orderData.matchLogs && orderData.matchLogs.length > 0 && (
+                  <div className="pt-2 border-t border-[#262B3D]/70 space-y-2">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                      <span>Pro Booster Match Results</span>
+                      <span className="text-[#00F59B]">{orderData.matchLogs.length} Matches Logged</span>
+                    </span>
+                    <div className="bg-[#141824] rounded-xl p-3 space-y-2 max-h-36 overflow-y-auto">
+                      {orderData.matchLogs.map((m, idx) => (
+                        <div key={idx} className="border-b border-[#262B3D] pb-1.5 last:border-b-0 last:pb-0 text-[11px]">
+                          <div className="flex justify-between items-center text-white font-bold">
+                            <span className="text-[#00F59B]">Match #{m.matchNumber || idx + 1}: {m.scoreLabel}</span>
+                            <span className="text-[10px] text-gray-400 font-mono">{(m.loggedAt || '').substring(11, 16)}</span>
+                          </div>
+                          {m.comment && <div className="text-gray-400 text-[10px] mt-0.5">{m.comment}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Milestones Steps */}
                 <div className="pt-2 border-t border-[#262B3D]/70 space-y-2">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">

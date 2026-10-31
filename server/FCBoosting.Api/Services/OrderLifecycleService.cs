@@ -12,10 +12,11 @@ public class OrderLifecycleService : IOrderLifecycleService
     // Allowed status transitions map to enforce business rules
     private static readonly Dictionary<string, HashSet<string>> AllowedTransitions = new()
     {
-        ["Pending"] = new() { "Accepted", "Cancelled" },
+        ["Pending"] = new() { "Accepted", "InProgress", "Cancelled" },
         ["Accepted"] = new() { "InProgress", "Cancelled" },
-        ["InProgress"] = new() { "AwaitingCustomer", "Completed", "Cancelled" },
+        ["InProgress"] = new() { "UnderReview", "AwaitingCustomer", "Completed", "Cancelled" },
         ["AwaitingCustomer"] = new() { "InProgress", "Cancelled" },
+        ["UnderReview"] = new() { "Completed", "InProgress", "Cancelled" },
         ["Completed"] = new() { }, // Terminal state
         ["Cancelled"] = new() { }  // Terminal state
     };

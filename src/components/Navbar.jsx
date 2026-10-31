@@ -314,6 +314,18 @@ export default function Navbar() {
             >
               About Us
             </button>
+
+            <button
+              onClick={() => handleNavClick('admin')}
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 ${
+                currentPage === 'admin'
+                  ? 'text-[#FF3B30] bg-[#141824] border border-[#FF3B30]/40'
+                  : 'text-gray-300 hover:text-[#FF3B30] hover:bg-[#141824]/60'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#FF3B30]" />
+              <span>Admin & Boosters</span>
+            </button>
           </div>
 
           {/* Right Action Icons & Mobile Hamburger */}

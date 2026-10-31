@@ -18,6 +18,12 @@ public class FCBoostingDbContext : DbContext
     public DbSet<OrderStatusHistory> OrderStatusHistory => Set<OrderStatusHistory>();
     public DbSet<OrderAttachment> OrderAttachments => Set<OrderAttachment>();
     public DbSet<OrderSessionToken> OrderSessionTokens => Set<OrderSessionToken>();
+    public DbSet<PlayerProfile> PlayerProfiles => Set<PlayerProfile>();
+    public DbSet<PlayerEarning> PlayerEarnings => Set<PlayerEarning>();
+    public DbSet<OrderMatchLog> OrderMatchLogs => Set<OrderMatchLog>();
+    public DbSet<OrderProof> OrderProofs => Set<OrderProof>();
+    public DbSet<OrderAuditLog> OrderAuditLogs => Set<OrderAuditLog>();
+    public DbSet<OrderMessage> OrderMessages => Set<OrderMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,6 +61,19 @@ public class FCBoostingDbContext : DbContext
 
         // 4. Relationships
         modelBuilder.Entity<Order>()
+            .HasOne(o => o.User)
+            .WithMany(u => u.Orders)
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.AssignedPlayer)
+            .WithMany()
+            .HasForeignKey(o => o.AssignedPlayerId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Order>()
             .HasMany(o => o.OrderDetails)
             .WithOne(d => d.Order)
             .HasForeignKey(d => d.OrderId)
@@ -70,6 +89,30 @@ public class FCBoostingDbContext : DbContext
             .HasMany(o => o.Attachments)
             .WithOne(a => a.Order)
             .HasForeignKey(a => a.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.MatchLogs)
+            .WithOne(m => m.Order)
+            .HasForeignKey(m => m.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Proofs)
+            .WithOne(p => p.Order)
+            .HasForeignKey(p => p.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.AuditLogs)
+            .WithOne(a => a.Order)
+            .HasForeignKey(a => a.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Messages)
+            .WithOne(m => m.Order)
+            .HasForeignKey(m => m.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<User>()

@@ -66,6 +66,152 @@ public class OrdersController : ControllerBase
         });
     }
 
+    public record CreateFullOrderDto(
+        string? OrderNumber,
+        string? UserId,
+        string ServiceId,
+        string ServiceName,
+        decimal Price,
+        string? Platform,
+        string? ContactMethod,
+        string? PaymentMethod,
+        string? CustomerName,
+        string? CustomerEmail,
+        string? GamerTag,
+        string? Credentials,
+        string? DiscordUserId,
+        string? WhatsAppReference,
+        Dictionary<string, string>? Requirements);
+
+    // Primary endpoint for creating orders from frontend cart/checkout
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateFullOrderDto dto)
+    {
+        if (dto.Price <= 0)
+        {
+            return BadRequest("Price must be greater than zero.");
+        }
+
+        var orderNumber = !string.IsNullOrWhiteSpace(dto.OrderNumber) 
+            ? dto.OrderNumber 
+            : $"FC-ORD-{Random.Shared.Next(10000, 99999)}";
+
+        // Idempotency check
+        var existing = await _db.Orders.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+        if (existing != null)
+        {
+            return Ok(new
+            {
+                orderId = existing.OrderId,
+                orderNumber = existing.OrderNumber,
+                status = existing.Status,
+                createdAt = existing.CreatedAt,
+                message = "Order already exists."
+            });
+        }
+
+        // Ensure user exists or create customer record
+        string? customerUserId = dto.UserId;
+        if (string.IsNullOrWhiteSpace(customerUserId))
+        {
+            var email = dto.CustomerEmail ?? $"{orderNumber.ToLower()}@customer.fcboosting.com";
+            var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (existingUser != null)
+            {
+                customerUserId = existingUser.UserId;
+            }
+            else
+            {
+                var newUser = new User
+                {
+                    UserId = Guid.NewGuid().ToString(),
+                    DisplayName = dto.CustomerName ?? "Customer",
+                    Email = email,
+                    Role = "Customer",
+                    Status = "Active",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _db.Users.AddAsync(newUser);
+                customerUserId = newUser.UserId;
+            }
+        }
+
+        var order = new Order
+        {
+            OrderNumber = orderNumber,
+            UserId = customerUserId,
+            ServiceId = dto.ServiceId ?? "fc-custom",
+            ServiceName = dto.ServiceName ?? "FC 25 Custom Boost",
+            PriceSnapshot = dto.Price,
+            Platform = dto.Platform ?? "PS5",
+            ContactMethod = dto.ContactMethod ?? "WhatsApp",
+            PaymentMethod = dto.PaymentMethod ?? "Card",
+            PaymentStatus = "Paid",
+            CustomerName = dto.CustomerName ?? "Valued Customer",
+            CustomerEmail = dto.CustomerEmail ?? "customer@fcboosting.com",
+            GamerTag = dto.GamerTag ?? "Pending Setup",
+            CustomerCredentialsEncrypted = dto.Credentials,
+            DiscordUserId = dto.DiscordUserId,
+            WhatsAppReference = dto.WhatsAppReference ?? (dto.ContactMethod == "WhatsApp" ? orderNumber : null),
+            Status = "Pending",
+            CurrentScore = "Awaiting Booster Assignment",
+            ProgressPercentage = 0,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        if (dto.Requirements != null)
+        {
+            foreach (var (k, v) in dto.Requirements)
+            {
+                order.OrderDetails.Add(new OrderDetail
+                {
+                    FieldName = k,
+                    FieldValue = v
+                });
+            }
+        }
+
+        order.StatusHistory.Add(new OrderStatusHistory
+        {
+            PreviousStatus = "None",
+            NewStatus = "Pending",
+            ChangedByUserId = customerUserId,
+            ChangedAt = DateTime.UtcNow,
+            Notes = $"Order created via {order.ContactMethod} ({order.PaymentMethod})."
+        });
+
+        order.AuditLogs.Add(new OrderAuditLog
+        {
+            OrderId = order.OrderId,
+            ActorUserId = customerUserId,
+            ActorRole = "Customer",
+            ActionType = "Created",
+            OldStatus = null,
+            NewStatus = "Pending",
+            Description = $"Order #{order.OrderNumber} created for {order.ServiceName} (${order.PriceSnapshot}) on {order.Platform}.",
+            Timestamp = DateTime.UtcNow
+        });
+
+        await _db.Orders.AddAsync(order);
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Order #{OrderNumber} successfully persisted into SQL Server.", order.OrderNumber);
+
+        return Ok(new
+        {
+            orderId = order.OrderId,
+            orderNumber = order.OrderNumber,
+            status = order.Status,
+            price = order.PriceSnapshot,
+            serviceName = order.ServiceName,
+            platform = order.Platform,
+            createdAt = order.CreatedAt,
+            trackingUrl = $"/track?ref={order.OrderNumber}"
+        });
+    }
+
     public record CreateWhatsAppOrderDto(
         string OrderReference,
         string ServiceId,
@@ -153,13 +299,31 @@ public class OrdersController : ControllerBase
             return BadRequest("Reference is required.");
         }
 
-        var order = await _lifecycle.GetOrderByNumberOrReferenceAsync(reference.Trim());
+        var refClean = reference.Trim();
+        var order = await _db.Orders
+            .Include(o => o.StatusHistory)
+            .Include(o => o.MatchLogs)
+            .Include(o => o.Proofs)
+            .Include(o => o.AssignedPlayer)
+            .FirstOrDefaultAsync(o =>
+                o.OrderNumber == refClean ||
+                o.OrderId == refClean ||
+                o.WhatsAppReference == refClean);
+
         if (order == null)
         {
             return NotFound(new { message = $"No order found for reference '{reference}'." });
         }
 
-        // Return sanitized public tracking info (zero credentials or private hashes)
+        // Get booster nickname safely if assigned
+        string? boosterNickname = null;
+        if (!string.IsNullOrEmpty(order.AssignedPlayerId))
+        {
+            var profile = await _db.PlayerProfiles.FirstOrDefaultAsync(p => p.UserId == order.AssignedPlayerId);
+            boosterNickname = profile?.ProNickname ?? order.AssignedPlayer?.DisplayName ?? "Assigned Verified Pro";
+        }
+
+        // Return sanitized public tracking info (zero passwords or credentials exposed)
         return Ok(new
         {
             orderNumber = order.OrderNumber,
@@ -168,9 +332,30 @@ public class OrdersController : ControllerBase
             status = order.Status,
             price = order.PriceSnapshot,
             contactMethod = order.ContactMethod,
+            paymentStatus = order.PaymentStatus,
+            currentScore = order.CurrentScore,
+            progressPercentage = order.ProgressPercentage,
+            boosterAssigned = order.AssignedPlayerId != null,
+            boosterNickname = boosterNickname,
+            boosterVpnLocation = order.BoosterVpnLocation,
             createdAt = order.CreatedAt,
+            startedAt = order.StartedAt,
             completedAt = order.CompletedAt,
-            hasProof = order.Attachments.Any(),
+            matchLogs = order.MatchLogs.OrderByDescending(m => m.LoggedAt).Select(m => new
+            {
+                matchNumber = m.MatchNumber,
+                result = m.Result,
+                scoreLabel = m.MatchScoreLabel,
+                comment = m.BoosterComment,
+                loggedAt = m.LoggedAt
+            }).ToList(),
+            proofs = order.Proofs.Select(p => new
+            {
+                proofId = p.ProofId,
+                fileName = p.FileName,
+                fileUrl = p.FileUrl,
+                uploadedAt = p.UploadedAt
+            }).ToList(),
             statusHistory = order.StatusHistory.Select(h => new
             {
                 status = h.NewStatus,
@@ -178,5 +363,90 @@ public class OrdersController : ControllerBase
                 note = h.Notes
             }).OrderByDescending(h => h.date).ToList()
         });
+    }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetUserOrders(string userId)
+    {
+        var orders = await _db.Orders
+            .Where(o => o.UserId == userId || o.CustomerEmail == userId)
+            .Include(o => o.MatchLogs)
+            .Include(o => o.Proofs)
+            .OrderByDescending(o => o.CreatedAt)
+            .Select(o => new
+            {
+                orderId = o.OrderId,
+                orderNumber = o.OrderNumber,
+                serviceName = o.ServiceName,
+                platform = o.Platform,
+                price = o.PriceSnapshot,
+                status = o.Status,
+                currentScore = o.CurrentScore,
+                progress = o.ProgressPercentage,
+                createdAt = o.CreatedAt,
+                completedAt = o.CompletedAt
+            })
+            .ToListAsync();
+
+        return Ok(orders);
+    }
+
+    public record SendMessageDto(string SenderUserId, string SenderRole, string MessageText, bool IsAdminOnly = false);
+
+    [HttpPost("{orderId}/messages")]
+    public async Task<IActionResult> SendMessage(string orderId, [FromBody] SendMessageDto dto)
+    {
+        var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId || o.OrderNumber == orderId);
+        if (order == null) return NotFound("Order not found.");
+
+        var message = new OrderMessage
+        {
+            OrderId = order.OrderId,
+            SenderUserId = dto.SenderUserId,
+            SenderRole = dto.SenderRole,
+            MessageText = dto.MessageText,
+            IsAdminOnlyNote = dto.IsAdminOnly,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _db.OrderMessages.AddAsync(message);
+        await _db.SaveChangesAsync();
+
+        return Ok(new
+        {
+            messageId = message.MessageId,
+            orderId = message.OrderId,
+            senderRole = message.SenderRole,
+            messageText = message.MessageText,
+            createdAt = message.CreatedAt
+        });
+    }
+
+    [HttpGet("{orderId}/messages")]
+    public async Task<IActionResult> GetMessages(string orderId, [FromQuery] bool isAdmin = false)
+    {
+        var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId || o.OrderNumber == orderId);
+        if (order == null) return NotFound("Order not found.");
+
+        var query = _db.OrderMessages.Where(m => m.OrderId == order.OrderId);
+        if (!isAdmin)
+        {
+            query = query.Where(m => !m.IsAdminOnlyNote);
+        }
+
+        var messages = await query
+            .OrderBy(m => m.CreatedAt)
+            .Select(m => new
+            {
+                messageId = m.MessageId,
+                senderUserId = m.SenderUserId,
+                senderRole = m.SenderRole,
+                messageText = m.MessageText,
+                isAdminOnly = m.IsAdminOnlyNote,
+                createdAt = m.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(messages);
     }
 }

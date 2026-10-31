@@ -29,6 +29,12 @@ public class User
 
     public string Role { get; set; } = "Customer"; // "Customer" or "Admin"
 
+    [MaxLength(50)]
+    public string Status { get; set; } = "Active";
+
+    [MaxLength(50)]
+    public string? Phone { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
