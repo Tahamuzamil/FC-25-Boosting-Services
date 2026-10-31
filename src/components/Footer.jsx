@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-[#080A0F] border-t border-[#262B3D] pt-12 sm:pt-16 pb-10 sm:pb-12 text-gray-400 font-sans select-none">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Top Feature Badges Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 pb-10 sm:pb-14 border-b border-[#262B3D]/80">

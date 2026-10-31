@@ -80,7 +80,7 @@ export default function AdminOrderDashboard() {
 
   return (
     <div className="w-full py-10 bg-[#0B0D13] select-none font-sans text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#262B3D] gap-4">

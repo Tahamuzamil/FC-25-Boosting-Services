@@ -115,8 +115,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full select-none font-sans">
       
       {/* Top Utility Bar */}
-      <div className="w-full bg-[#080A0F] border-b border-[#262B3D]/60 py-1.5 px-3 sm:px-6 md:px-8 text-[11px] text-gray-400 font-medium">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <div className="w-full bg-[#080A0F] border-b border-[#262B3D]/60 py-1.5 px-4 sm:px-8 lg:px-12 text-[11px] text-gray-400 font-medium">
+        <div className="max-w-[1720px] mx-auto flex items-center justify-between gap-2">
           
           {/* Live Pros Indicator */}
           <div className="flex items-center space-x-2 sm:space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
@@ -180,8 +180,8 @@ export default function Navbar() {
       </div>
 
       {/* Main Navigation Bar */}
-      <nav className="glass-nav bg-[#0B0D13]/95 border-b border-[#262B3D] px-3 sm:px-6 md:px-8 py-3 shadow-2xl transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <nav className="glass-nav bg-[#0B0D13]/95 border-b border-[#262B3D] px-4 sm:px-8 lg:px-12 py-3.5 shadow-2xl transition-all">
+        <div className="max-w-[1720px] mx-auto flex items-center justify-between">
           
           {/* Brand Logo */}
           <div

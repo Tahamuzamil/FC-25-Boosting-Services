@@ -144,7 +144,7 @@ export default function QuickCalculator() {
 
   return (
     <section className="w-full py-10 sm:py-16 bg-[#0B0D13] select-none font-sans">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Section Title */}
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 space-y-2">

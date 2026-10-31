@@ -51,7 +51,7 @@ export default function ValueProposition() {
 
   return (
     <section id="why-us" className="w-full py-16 bg-[#0B0D13] select-none font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">

@@ -52,7 +52,7 @@ export default function UTChampionsPage() {
 
   return (
     <div className="w-full py-6 sm:py-10 bg-[#0B0D13] select-none font-sans text-white">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-6 sm:space-y-10">
         
         {/* Page Hero Header with FIFA Champions Imagery */}
         <div className="bg-gradient-to-r from-[#141824] via-[#1C2234] to-[#141824] border border-[#262B3D] rounded-3xl p-5 sm:p-8 md:p-10 relative overflow-hidden">
