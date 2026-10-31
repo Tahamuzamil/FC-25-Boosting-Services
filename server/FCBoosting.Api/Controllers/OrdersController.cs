@@ -399,10 +399,35 @@ public class OrdersController : ControllerBase
         var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId || o.OrderNumber == orderId);
         if (order == null) return NotFound("Order not found.");
 
+        string senderId = dto.SenderUserId;
+        var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.UserId == senderId);
+        if (existingUser == null)
+        {
+            if (dto.SenderRole == "Customer" && !string.IsNullOrEmpty(order.UserId))
+            {
+                senderId = order.UserId;
+            }
+            else
+            {
+                var autoUser = new User
+                {
+                    UserId = senderId,
+                    DisplayName = dto.SenderRole == "Admin" ? "Admin Operator" : "Customer",
+                    Email = $"{senderId.ToLower().Replace(" ", "_")}@fcboosting.com",
+                    Role = dto.SenderRole,
+                    Status = "Active",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _db.Users.AddAsync(autoUser);
+                await _db.SaveChangesAsync();
+            }
+        }
+
         var message = new OrderMessage
         {
             OrderId = order.OrderId,
-            SenderUserId = dto.SenderUserId,
+            SenderUserId = senderId,
             SenderRole = dto.SenderRole,
             MessageText = dto.MessageText,
             IsAdminOnlyNote = dto.IsAdminOnly,
@@ -416,6 +441,7 @@ public class OrdersController : ControllerBase
         {
             messageId = message.MessageId,
             orderId = message.OrderId,
+            senderUserId = message.SenderUserId,
             senderRole = message.SenderRole,
             messageText = message.MessageText,
             createdAt = message.CreatedAt
