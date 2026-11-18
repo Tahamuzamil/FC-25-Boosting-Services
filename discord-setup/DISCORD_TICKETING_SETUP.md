@@ -1,6 +1,6 @@
-# 🎮 FC BOOST PRO — Discord Community & Automated Ticketing System
+# 🎮 Boosting Haven — Discord Community & Automated Ticketing System
 
-This document outlines the full architecture, channel blueprint, role permissions, and bot deployment guide for the **FC BOOST PRO** Discord community.
+This document outlines the full architecture, channel blueprint, role permissions, and bot deployment guide for the **Boosting Haven** Discord community.
 
 ---
 

@@ -9,6 +9,7 @@ export default function UserDashboardModal() {
     logout,
     orders,
     openTrackerWithId,
+    formatPrice,
   } = useApp();
 
   if (!isDashboardOpen || !user) return null;
@@ -34,8 +35,8 @@ export default function UserDashboardModal() {
             <div>
               <div className="flex items-center space-x-2">
                 <h3 className="text-lg font-black text-white">{user.name}</h3>
-                <span className="text-[10px] font-bold text-[#00F59B] bg-[#00F59B]/10 px-2 py-0.5 rounded border border-[#00F59B]/20">
-                  VERIFIED CLIENT
+                <span className="text-[10px] font-bold text-[#00F59B] bg-[#00F59B]/10 px-2 py-0.5 rounded border border-[#00F59B]/20 uppercase">
+                  {user.category || user.role || 'Customer'}
                 </span>
               </div>
               <p className="text-xs text-gray-400">{user.email}</p>
@@ -91,7 +92,7 @@ export default function UserDashboardModal() {
                   <div className="flex items-center space-x-3 text-gray-400">
                     <span>{order.orderDate}</span>
                     <span className="font-black text-white text-sm">
-                      ${Number(order.price).toFixed(2)} USD
+                      {formatPrice(order.price, true)}
                     </span>
                   </div>
                 </div>
@@ -110,16 +111,23 @@ export default function UserDashboardModal() {
                     Booster: <span className="text-white font-bold">{order.boosterName || 'Assigning Top Pro...'}</span>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setIsDashboardOpen(false);
-                      openTrackerWithId(order.id);
-                    }}
-                    className="text-[#00F59B] hover:underline font-bold flex items-center space-x-1 cursor-pointer"
-                  >
-                    <span>View Live Match Tracker</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </button>
+                  {((user?.category || user?.role || '').toLowerCase() === 'admin' || (user?.category || user?.role || '').toLowerCase() === 'a') ? (
+                    <button
+                      onClick={() => {
+                        setIsDashboardOpen(false);
+                        openTrackerWithId(order.id);
+                      }}
+                      className="text-[#00F59B] hover:underline font-bold flex items-center space-x-1 cursor-pointer"
+                    >
+                      <span>Admin Order Tracker</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <div className="text-gray-400 flex items-center space-x-1.5 text-[11px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00F59B]" />
+                      <span>Tracking restricted to Admin • Live support available</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))

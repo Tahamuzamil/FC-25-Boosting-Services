@@ -22,13 +22,13 @@ export default function Navbar() {
         <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
-            {/* LEFT SIDE: DBA BOOSTING BRANDING LOGO */}
+            {/* LEFT SIDE: BOOSTING HAVEN BRANDING LOGO */}
             <div className="-shrink-0 flex flex-col justify-center leading-none cursor-pointer">
               <span className="text-2xl font-black tracking-tighter text-white italic">
-                DBA
-              </span>
-              <span className="text-[10px] font-bold tracking-[0.25em] text-gray-300 uppercase -mt-0.5">
                 BOOSTING
+              </span>
+              <span className="text-[10px] font-bold tracking-[0.25em] text-[#00F59B] uppercase -mt-0.5">
+                HAVEN
               </span>
             </div>
 
@@ -54,13 +54,13 @@ export default function Navbar() {
                   className="bg-transparent text-xs font-bold text-gray-200 border border-zinc-700 px-3 py-1.5 rounded uppercase tracking-wider appearance-none pr-8 cursor-pointer focus:outline-none focus:border-zinc-500"
                   defaultValue="USD"
                 >
-                  <option value="USD" className="bg-[#050608]">USD (\$)</option>
+                  <option value="USD" className="bg-[#050608]">USD ($)</option>
                   <option value="EUR" className="bg-[#050608]">EUR (€)</option>
                   <option value="GBP" className="bg-[#050608]">GBP (£)</option>
                 </select>
                 {/* Custom Chevron Indicator */}
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                  <svg className="fill-current h-4 w-4" xmlns="http://w3.org" viewBox="0 0 20 20">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
                   </svg>
                 </div>
@@ -69,7 +69,7 @@ export default function Navbar() {
               {/* Red User Log In Link */}
               <a href="#" className="flex items-center space-x-2 group">
                 <div className="w-7 h-7 bg-red-600 rounded-full flex items-center justify-center text-white transition-transform group-hover:scale-105">
-                  <svg xmlns="http://w3.org" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-1.86-5.33-4-8-4z" />
                   </svg>
                 </div>
@@ -80,7 +80,7 @@ export default function Navbar() {
 
               {/* Shopping Cart Button */}
               <button className="relative p-1 text-gray-300 hover:text-white transition-colors">
-                <svg xmlns="http://w3.org" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {/* White Status Badge Dot */}

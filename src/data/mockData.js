@@ -1,4 +1,4 @@
-// Mock data for EA Sports FC Boosting Service Platform
+// Mock data for Boosting Haven Platform
 // Ready to map with SQL Server & ASP.NET Core API Models
 import { getAssetUrl } from '../utils/assets';
 

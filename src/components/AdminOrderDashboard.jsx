@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient } from '../services/apiContract';
+import { apiClient, BACKEND_API_BASE_URL } from '../services/apiContract';
 import {
   ShieldCheck,
   Search,

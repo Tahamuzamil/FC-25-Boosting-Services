@@ -5,7 +5,7 @@ import { Coins, ShieldCheck, Check, ArrowRight, Zap, Info } from 'lucide-react';
 import { getAssetUrl } from '../utils/assets';
 
 export default function CoinsBoostingPage() {
-  const { addToCart, setIsCartOpen, openContactModal } = useApp();
+  const { addToCart, setIsCartOpen, openContactModal, formatPrice, currentCurrency } = useApp();
 
   const [coinAmountK, setCoinAmountK] = useState(1000); // 1,000,000 coins default
   const [selectedPlatform, setSelectedPlatform] = useState('ps5');
@@ -210,10 +210,10 @@ export default function CoinsBoostingPage() {
 
             <div className="pt-4 border-t border-[#262B3D] flex items-baseline justify-between">
               <div>
-                <span className="text-[10px] text-gray-400 uppercase font-bold block">Total in USD</span>
-                <span className="text-3xl font-black text-[#00F59B]">${calculatedPrice}</span>
+                <span className="text-[10px] text-gray-400 uppercase font-bold block">Total Amount</span>
+                <span className="text-3xl font-black text-[#00F59B]">{formatPrice(calculatedPrice)}</span>
               </div>
-              <span className="text-xs text-gray-400">USD Fixed</span>
+              <span className="text-xs text-gray-400 font-bold font-mono">{currentCurrency.code} Guaranteed</span>
             </div>
 
             <div className="space-y-2 pt-2">

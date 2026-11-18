@@ -1,16 +1,72 @@
-import { ShieldCheck, Lock, Headphones, MessageSquare, Send, Trophy, Check, ArrowRight } from 'lucide-react';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { ShieldCheck, Lock, Headphones, MessageSquare, Send, Trophy, Check, ArrowRight, ExternalLink, Star } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Footer() {
-  const { setCurrentPage, setIsTrackerOpen, openContactModal } = useApp();
+  const { setCurrentPage, setIsTrackerOpen, openContactModal, user } = useApp();
+  const isAdmin = (user?.category || user?.role || '').toLowerCase() === 'admin' || (user?.category || user?.role || '').toLowerCase() === 'a';
+
+  const badgesRef = useRef(null);
+  const isBadgesInView = useInView(badgesRef, { once: true, margin: '-50px' });
+
+  const columnsRef = useRef(null);
+  const isColumnsInView = useInView(columnsRef, { once: true, margin: '-50px' });
+
+  const hiringRef = useRef(null);
+  const isHiringInView = useInView(hiringRef, { once: true, margin: '-50px' });
+
+  const paymentRef = useRef(null);
+  const isPaymentInView = useInView(paymentRef, { once: true, margin: '-50px' });
+
+  const badgesContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+  };
+
+  const badgeVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } },
+  };
+
+  const columnsContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
+  };
+
+  const columnVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } },
+  };
+
+  const paymentContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  };
+
+  const paymentBadgeVariants = {
+    hidden: { y: 10, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
+  };
+
+  const hiringVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+  };
 
   return (
     <footer className="w-full bg-[#080A0F] border-t border-[#262B3D] pt-12 sm:pt-16 pb-10 sm:pb-12 text-gray-400 font-sans select-none">
       <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Top Feature Badges Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 pb-10 sm:pb-14 border-b border-[#262B3D]/80">
-          <div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]">
+        <motion.div
+          ref={badgesRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 pb-10 sm:pb-14 border-b border-[#262B3D]/80"
+          variants={badgesContainerVariants}
+          initial="hidden"
+          animate={isBadgesInView ? 'visible' : 'hidden'}
+        >
+          <motion.div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]" variants={badgeVariants}>
             <div className="w-10 h-10 rounded-xl bg-[#00F59B]/10 border border-[#00F59B]/20 flex items-center justify-center text-[#00F59B] shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
@@ -18,9 +74,9 @@ export default function Footer() {
               <h4 className="text-sm font-black text-white uppercase tracking-wider">100% Ban-Free</h4>
               <p className="text-xs text-gray-400">Strict regional VPN protection</p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]">
+          <motion.div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]" variants={badgeVariants}>
             <div className="w-10 h-10 rounded-xl bg-[#00F59B]/10 border border-[#00F59B]/20 flex items-center justify-center text-[#00F59B] shrink-0">
               <Lock className="w-5 h-5" />
             </div>
@@ -28,9 +84,9 @@ export default function Footer() {
               <h4 className="text-sm font-black text-white uppercase tracking-wider">256-Bit SSL Safe</h4>
               <p className="text-xs text-gray-400">Encrypted payment checkouts</p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]">
+          <motion.div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]" variants={badgeVariants}>
             <div className="w-10 h-10 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] shrink-0">
               <Headphones className="w-5 h-5" />
             </div>
@@ -38,84 +94,98 @@ export default function Footer() {
               <h4 className="text-sm font-black text-white uppercase tracking-wider">24/7 Live Support</h4>
               <p className="text-xs text-gray-400">Average response in 45 sec</p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]">
+          <motion.div className="flex items-center space-x-3.5 bg-[#141824]/50 p-4 rounded-2xl border border-[#262B3D]" variants={badgeVariants}>
             <div className="w-10 h-10 rounded-xl bg-[#FFB800]/10 border border-[#FFB800]/20 flex items-center justify-center text-[#FFB800] shrink-0">
-              <span className="font-black text-lg">★ 4.9</span>
+              <Star className="w-5 h-5 fill-[#FFB800] text-[#FFB800]" />
             </div>
             <div>
-              <h4 className="text-sm font-black text-white uppercase tracking-wider">25,000+ Orders</h4>
-              <p className="text-xs text-gray-400">Verified Trustpilot reviews</p>
+              <h4 className="text-sm font-black text-white uppercase tracking-wider">4.9 / 5.0 Rating</h4>
+              <p className="text-xs text-gray-400">25,000+ Trustpilot reviews</p>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Main Footer Links Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 py-12">
+        <motion.div
+          ref={columnsRef}
+          className="grid grid-cols-1 md:grid-cols-12 gap-10 py-12"
+          variants={columnsContainerVariants}
+          initial="hidden"
+          animate={isColumnsInView ? 'visible' : 'hidden'}
+        >
           
           {/* Brand Info */}
-          <div className="md:col-span-4 space-y-4">
+          <motion.div className="md:col-span-4 space-y-4" variants={columnVariants}>
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#141824] to-[#1C2234] border border-[#262B3D] flex items-center justify-center font-black italic text-[#00F59B]">
-                FC
+                BH
               </div>
               <span className="text-xl font-black tracking-wider text-white uppercase italic">
-                BOOST<span className="text-[#00F59B]">PRO</span>
+                BOOSTING<span className="text-[#00F59B]">HAVEN</span>
               </span>
             </div>
             <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
-              The premier EA Sports FC 25 & FC 26 boosting platform. Powered by verified Top 200 pro players, cutting-edge VPN stealth technology, and 24/7 dedicated customer care.
+              The premier gaming boosting platform. Powered by verified Top 200 pro players, cutting-edge VPN stealth technology, and 24/7 dedicated customer care.
             </p>
             <div className="flex items-center space-x-3 pt-2">
-              <a
+              <motion.a
                 href="https://discord.gg"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-xl bg-[#141824] hover:bg-[#5865F2] hover:text-white border border-[#262B3D] flex items-center justify-center transition-all text-gray-400"
                 aria-label="Discord"
+                whileHover={{ scale: 1.15, y: -3 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <MessageSquare className="w-4 h-4" />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="https://telegram.org"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-xl bg-[#141824] hover:bg-[#229ED9] hover:text-white border border-[#262B3D] flex items-center justify-center transition-all text-gray-400"
                 aria-label="Telegram"
+                whileHover={{ scale: 1.15, y: -3 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <Send className="w-4 h-4" />
-              </a>
+              </motion.a>
               {/* X / Twitter */}
-              <a
+              <motion.a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-xl bg-[#141824] hover:bg-white hover:text-black border border-[#262B3D] flex items-center justify-center transition-all text-gray-400"
                 aria-label="X / Twitter"
+                whileHover={{ scale: 1.15, y: -3 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-              </a>
+              </motion.a>
               {/* Instagram */}
-              <a
+              <motion.a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-xl bg-[#141824] hover:bg-[#E1306C] hover:text-white border border-[#262B3D] flex items-center justify-center transition-all text-gray-400"
                 aria-label="Instagram"
+                whileHover={{ scale: 1.15, y: -3 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                 </svg>
-              </a>
+              </motion.a>
             </div>
-          </div>
+          </motion.div>
 
           {/* Boosting Services */}
-          <div className="md:col-span-3 space-y-3">
-            <h5 className="text-xs font-black tracking-widest text-white uppercase">FC Boosting Services</h5>
+          <motion.div className="md:col-span-3 space-y-3" variants={columnVariants}>
+            <h5 className="text-xs font-black tracking-widest text-white uppercase">Boosting Haven Services</h5>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
@@ -130,7 +200,7 @@ export default function Footer() {
                   onClick={() => { setCurrentPage('division-rivals'); window.scrollTo(0,0); }}
                   className="hover:text-[#00F59B] transition-colors"
                 >
-                  Division Rivals Tier & 7 Wins
+                  Division Rivals Boost (15 &amp; 30 Points)
                 </button>
               </li>
               <li>
@@ -146,7 +216,7 @@ export default function Footer() {
                   onClick={() => { setCurrentPage('all-services'); window.scrollTo(0,0); }}
                   className="hover:text-[#00F59B] transition-colors"
                 >
-                  Play-Offs & Live Events
+                  Play-Offs &amp; Live Events
                 </button>
               </li>
               <li>
@@ -154,24 +224,26 @@ export default function Footer() {
                   onClick={() => { setCurrentPage('about'); window.scrollTo(0,0); }}
                   className="hover:text-[#00F59B] transition-colors"
                 >
-                  About FC BOOST PRO
+                  About Boosting Haven
                 </button>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Quick Links & Tracking */}
-          <div className="md:col-span-2 space-y-3">
-            <h5 className="text-xs font-black tracking-widest text-white uppercase">Help & Tracking</h5>
+          <motion.div className="md:col-span-2 space-y-3" variants={columnVariants}>
+            <h5 className="text-xs font-black tracking-widest text-white uppercase">Help &amp; Support</h5>
             <ul className="space-y-2 text-xs">
-              <li>
-                <button
-                  onClick={() => setIsTrackerOpen(true)}
-                  className="text-[#00F59B] font-bold hover:underline"
-                >
-                  Track Live Order Status
-                </button>
-              </li>
+              {isAdmin && (
+                <li>
+                  <button
+                    onClick={() => setIsTrackerOpen(true)}
+                    className="text-red-400 font-bold hover:underline"
+                  >
+                    Admin Order Tracker
+                  </button>
+                </li>
+              )}
               <li>
                 <a href="#faq" className="hover:text-white transition-colors">
                   Frequently Asked Questions
@@ -203,48 +275,77 @@ export default function Footer() {
                 </button>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Legal & Payment Gateways */}
-          <div className="md:col-span-3 space-y-3">
+          <motion.div className="md:col-span-3 space-y-3" variants={columnVariants}>
             <h5 className="text-xs font-black tracking-widest text-white uppercase">Guaranteed Secure Payments</h5>
             <p className="text-[11px] text-gray-400">
               All transactions are processed with bank-level encryption. We never store financial credentials.
             </p>
             
             {/* Payment Method Badges */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200">
+            <motion.div
+              ref={paymentRef}
+              className="flex flex-wrap gap-2 pt-1"
+              variants={paymentContainerVariants}
+              initial="hidden"
+              animate={isPaymentInView ? 'visible' : 'hidden'}
+            >
+              <motion.span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200" variants={paymentBadgeVariants}>
                 PayPal Express
-              </span>
-              <span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200">
+              </motion.span>
+              <motion.span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200" variants={paymentBadgeVariants}>
                 Stripe (Visa / MC)
-              </span>
-              <span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200">
+              </motion.span>
+              <motion.span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200" variants={paymentBadgeVariants}>
                 Apple Pay
-              </span>
-              <span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200">
+              </motion.span>
+              <motion.span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-gray-200" variants={paymentBadgeVariants}>
                 Google Pay
-              </span>
-              <span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-[#00F59B]">
+              </motion.span>
+              <motion.span className="px-2.5 py-1 rounded bg-[#141824] border border-[#262B3D] text-[10px] font-bold text-[#00F59B]" variants={paymentBadgeVariants}>
                 Crypto (USDT / BTC)
-              </span>
-            </div>
-          </div>
+              </motion.span>
+            </motion.div>
+          </motion.div>
 
-        </div>
+        </motion.div>
 
         {/* Work With Us - Hiring Banner (from Design) */}
-        <div className="mb-10 rounded-2xl border border-[#FFB800]/40 bg-gradient-to-r from-[#181C28] via-[#141824] to-[#141824] p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl">
+        <motion.div
+          ref={hiringRef}
+          className="mb-10 rounded-2xl border border-[#FFB800]/40 bg-gradient-to-r from-[#181C28] via-[#141824] to-[#141824] p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-xl"
+          variants={hiringVariants}
+          initial="hidden"
+          animate={isHiringInView ? 'visible' : 'hidden'}
+          style={{
+            boxShadow: '0 0 15px rgba(255, 184, 0, 0.08), 0 0 30px rgba(255, 184, 0, 0.04)',
+          }}
+        >
           <div className="flex items-center space-x-3.5">
             <div className="w-11 h-11 rounded-xl bg-[#FFB800]/10 border border-[#FFB800]/30 flex items-center justify-center text-[#FFB800] shrink-0">
               <Trophy className="w-5 h-5" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="bg-[#FFB800] text-[#0B0D13] text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider">
+                <motion.span
+                  className="bg-[#FFB800] text-[#0B0D13] text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider"
+                  animate={{
+                    boxShadow: [
+                      '0 0 0px rgba(255, 184, 0, 0.4)',
+                      '0 0 12px rgba(255, 184, 0, 0.6)',
+                      '0 0 0px rgba(255, 184, 0, 0.4)',
+                    ],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
                   NOW HIRING
-                </span>
+                </motion.span>
                 <h4 className="text-sm font-black text-white uppercase tracking-wider">
                   WORK WITH US — JOIN AS A BOOSTER
                 </h4>
@@ -271,7 +372,7 @@ export default function Footer() {
               </span>
             </div>
 
-            <button
+            <motion.button
               onClick={() => {
                 openContactModal({
                   serviceName: 'Booster Application (Top 200)',
@@ -281,20 +382,22 @@ export default function Footer() {
                 });
               }}
               className="px-5 py-2.5 rounded-xl bg-[#FFB800] hover:bg-[#E5A600] text-[#0B0D13] font-black text-xs uppercase tracking-wider inline-flex items-center space-x-1.5 transition-all shadow-md cursor-pointer shrink-0"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span>APPLY NOW</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Bottom Disclaimer & Copyright */}
         <div className="border-t border-[#262B3D]/80 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-gray-400 gap-4">
           <div>
-            © 2026 FC BOOST PRO. All rights reserved. Not affiliated with Electronic Arts Inc.
+            © 2026 Boosting Haven. All rights reserved. Not affiliated with Electronic Arts Inc.
           </div>
           <div className="flex items-center space-x-4">
-            <span className="hover:text-gray-300 cursor-pointer">Safety & Rules</span>
+            <span className="hover:text-gray-300 cursor-pointer">Safety &amp; Rules</span>
             <span>•</span>
             <span className="hover:text-gray-300 cursor-pointer">Boosting Terms</span>
             <span>•</span>

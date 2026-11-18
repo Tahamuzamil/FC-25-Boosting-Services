@@ -2,6 +2,18 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { SAMPLE_ORDERS } from '../data/mockData';
 import { apiClient } from '../services/apiContract';
 
+export const CURRENCIES = {
+  USD: { code: 'USD', symbol: '$', rate: 1.0, flag: '🇺🇸', name: 'US Dollar' },
+  EUR: { code: 'EUR', symbol: '€', rate: 0.92, flag: '🇪🇺', name: 'Euro' },
+  GBP: { code: 'GBP', symbol: '£', rate: 0.79, flag: '🇬🇧', name: 'British Pound' },
+  CAD: { code: 'CAD', symbol: 'CA$', rate: 1.38, flag: '🇨🇦', name: 'Canadian Dollar' },
+  AUD: { code: 'AUD', symbol: 'A$', rate: 1.54, flag: '🇦🇺', name: 'Australian Dollar' },
+  SAR: { code: 'SAR', symbol: 'SAR ', rate: 3.75, flag: '🇸🇦', name: 'Saudi Riyal' },
+  AED: { code: 'AED', symbol: 'AED ', rate: 3.67, flag: '🇦🇪', name: 'UAE Dirham' },
+  BRL: { code: 'BRL', symbol: 'R$ ', rate: 5.60, flag: '🇧🇷', name: 'Brazilian Real' },
+  TRY: { code: 'TRY', symbol: '₺', rate: 34.20, flag: '🇹🇷', name: 'Turkish Lira' },
+};
+
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
@@ -35,8 +47,72 @@ export function AppProvider({ children }) {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  // Toast Notification
+  const [toast, setToast] = useState(null);
+
+  const showToast = (text, type = 'success') => {
+    setToast({ text, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3800);
+  };
+
+  // Multi-Currency State
+  const [currency, setCurrency] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fc_currency');
+      return saved && CURRENCIES[saved] ? saved : 'USD';
+    } catch {
+      return 'USD';
+    }
+  });
+
+  const changeCurrency = (code) => {
+    if (CURRENCIES[code]) {
+      setCurrency(code);
+      try {
+        localStorage.setItem('fc_currency', code);
+      } catch {}
+      showToast(`Currency updated to ${CURRENCIES[code].flag} ${code} (${CURRENCIES[code].name})`, 'info');
+    }
+  };
+
+  const currentCurrency = CURRENCIES[currency] || CURRENCIES.USD;
+
+  // Format any price (in USD base) to the currently selected currency
+  const formatPrice = (amountInUSD, includeCode = false) => {
+    if (amountInUSD === undefined || amountInUSD === null || amountInUSD === '') return '';
+    let num = 0;
+    if (typeof amountInUSD === 'number') {
+      num = amountInUSD;
+    } else {
+      const clean = String(amountInUSD).replace(/[^0-9.]/g, '');
+      num = parseFloat(clean) || 0;
+    }
+    const curr = CURRENCIES[currency] || CURRENCIES.USD;
+    const converted = (num * curr.rate).toFixed(2);
+    if (includeCode) {
+      return `${curr.symbol}${converted} ${curr.code}`;
+    }
+    return `${curr.symbol}${converted}`;
+  };
+
+  // Convert raw numeric price from USD to selected currency
+  const convertPrice = (amountInUSD) => {
+    if (amountInUSD === undefined || amountInUSD === null || amountInUSD === '') return 0;
+    let num = 0;
+    if (typeof amountInUSD === 'number') {
+      num = amountInUSD;
+    } else {
+      const clean = String(amountInUSD).replace(/[^0-9.]/g, '');
+      num = parseFloat(clean) || 0;
+    }
+    const curr = CURRENCIES[currency] || CURRENCIES.USD;
+    return Number((num * curr.rate).toFixed(2));
+  };
+
   // Navigation & Page State
-  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'ut-champions' | 'division-rivals' | 'coins' | 'all-services' | 'admin'
+  const [currentPage, setCurrentPage] = useState('home');
 
   // Modals & Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -48,16 +124,6 @@ export function AppProvider({ children }) {
   // Contact Method Modal (WhatsApp / Discord)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [activeOrderForContact, setActiveOrderForContact] = useState(null);
-
-  // Toast Notification
-  const [toast, setToast] = useState(null);
-
-  const showToast = (text, type = 'success') => {
-    setToast({ text, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 3800);
-  };
 
   // Cart State (Persisted in localStorage)
   const [cart, setCart] = useState(() => {
@@ -113,69 +179,92 @@ export function AppProvider({ children }) {
     }
   });
 
-  const login = (email, password) => {
-    const newUser = {
-      id: 'usr-' + Date.now(),
-      email,
-      name: email.split('@')[0],
-      discordTag: email.split('@')[0] + '#FUT',
-      createdAt: new Date().toLocaleDateString(),
-    };
-    setUser(newUser);
-    localStorage.setItem('fc_user', JSON.stringify(newUser));
-    showToast(`Welcome back, ${newUser.name}!`, 'success');
-    setIsAuthModalOpen(false);
+  const login = async (email, password) => {
+    try {
+      const loggedInUser = await apiClient.login(email, password);
+      setUser(loggedInUser);
+      localStorage.setItem('fc_user', JSON.stringify(loggedInUser));
+      localStorage.setItem('haven_user', JSON.stringify(loggedInUser));
+      setIsAuthModalOpen(false);
+
+      const category = (loggedInUser.category || loggedInUser.role || 'Customer').trim().toLowerCase();
+
+      if (category === 'admin' || category === 'a') {
+        setCurrentPage('admin');
+        showToast(`Welcome Admin ${loggedInUser.name}! Opening Admin Dashboard...`, 'success');
+      } else if (category === 'player' || category === 'p' || category === 'booster') {
+        setCurrentPage('player-dashboard');
+        showToast(`Welcome Pro Player ${loggedInUser.name}! Opening Player Dashboard...`, 'success');
+      } else {
+        setCurrentPage('home');
+        showToast(`Welcome back, ${loggedInUser.name}! Enjoy Boosting Haven.`, 'success');
+      }
+      return loggedInUser;
+    } catch (err) {
+      showToast(err.message || 'Login failed. Please verify credentials.', 'error');
+      throw err;
+    }
   };
 
-  const register = (name, email, password) => {
-    const newUser = {
-      id: 'usr-' + Date.now(),
-      name,
-      email,
-      discordTag: name + '#FUT',
-      createdAt: new Date().toLocaleDateString(),
-    };
-    setUser(newUser);
-    localStorage.setItem('fc_user', JSON.stringify(newUser));
-    showToast(`Account created! Welcome, ${name}!`, 'success');
-    setIsAuthModalOpen(false);
+  const register = async (name, email, password, category = 'Customer', options = {}) => {
+    try {
+      const newUser = await apiClient.register(name, email, password, category, options);
+      setUser(newUser);
+      localStorage.setItem('fc_user', JSON.stringify(newUser));
+      localStorage.setItem('haven_user', JSON.stringify(newUser));
+      setIsAuthModalOpen(false);
+
+      const cat = (category || 'Customer').trim().toLowerCase();
+      if (cat === 'admin' || cat === 'a') {
+        setCurrentPage('admin');
+        showToast(`Account created! Welcome Admin ${newUser.name}.`, 'success');
+      } else if (cat === 'player' || cat === 'p' || cat === 'booster') {
+        setCurrentPage('player-dashboard');
+        showToast(`Roster application received! Welcome Pro Booster ${newUser.name}.`, 'success');
+      } else {
+        setCurrentPage('home');
+        showToast(`Account created successfully! Welcome to Boosting Haven, ${newUser.name}.`, 'success');
+      }
+      return newUser;
+    } catch (err) {
+      showToast(err.message || 'Registration failed. Please try again.', 'error');
+      throw err;
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('fc_user');
-    showToast('You have been logged out.', 'info');
+    localStorage.removeItem('haven_user');
+    setCurrentPage('home');
+    showToast('Signed out successfully.', 'info');
   };
 
-  const createOrder = async (orderData) => {
-    const fullOrder = await apiClient.createOrder(orderData);
-    setOrders((prev) => [fullOrder, ...prev]);
-    return fullOrder;
+  const createOrder = async (orderPayload) => {
+    try {
+      const created = await apiClient.createOrder(orderPayload);
+      setOrders((prev) => [created, ...prev]);
+      return created;
+    } catch (err) {
+      showToast('Error syncing order to server.', 'error');
+      throw err;
+    }
   };
 
-  const updateOrderStatus = (orderId, newStatus, notes = '') => {
-    setOrders((prev) =>
-      prev.map((ord) => {
-        if (ord.id === orderId) {
-          return {
-            ...ord,
-            status: newStatus,
-            currentScore: newStatus === 'Completed' ? 'Service 100% Completed & Proof Attached' : ord.currentScore,
-            progress: newStatus === 'Completed' ? 100 : ord.progress,
-            history: [
-              ...(ord.history || []),
-              {
-                status: newStatus,
-                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-                notes,
-              },
-            ],
-          };
-        }
-        return ord;
-      })
-    );
-    showToast(`Order #${orderId} status updated to ${newStatus}`, 'success');
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const updated = await apiClient.adminUpdateStatus(orderId, newStatus);
+      setOrders((prev) =>
+        prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
+      );
+      showToast(`Order #${orderId} status set to ${newStatus}`, 'success');
+      return updated;
+    } catch {
+      setOrders((prev) =>
+        prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
+      );
+      showToast(`Status updated to ${newStatus} (Local State)`, 'info');
+    }
   };
 
   const openTrackerWithId = (orderId = '') => {
@@ -183,7 +272,6 @@ export function AppProvider({ children }) {
     setIsTrackerOpen(true);
   };
 
-  // Open Contact Method Modal
   const openContactModal = (orderConfig) => {
     setActiveOrderForContact(orderConfig);
     setIsContactModalOpen(true);
@@ -225,6 +313,13 @@ export function AppProvider({ children }) {
         orders,
         createOrder,
         updateOrderStatus,
+        currency,
+        setCurrency: changeCurrency,
+        changeCurrency,
+        currentCurrency,
+        CURRENCIES,
+        formatPrice,
+        convertPrice,
       }}
     >
       {children}

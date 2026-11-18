@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { X, Trash2, ArrowRight, ShieldCheck, Check, CreditCard, Lock, Sparkles } from 'lucide-react';
 
@@ -15,6 +16,8 @@ export default function CartDrawer() {
     openContactModal,
     showToast,
     user,
+    formatPrice,
+    currentCurrency,
   } = useApp();
 
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
@@ -29,14 +32,13 @@ export default function CartDrawer() {
   const [loginMethod, setLoginMethod] = useState('account'); // 'account' (EA login) | 'selfplay' (Play with Pro)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!isCartOpen) return null;
-
   const handleApplyPromo = () => {
-    if (promoCode.trim().toUpperCase() === 'FCPRO10' || promoCode.trim().toUpperCase() === 'DBA10') {
+    const code = promoCode.trim().toUpperCase();
+    if (code === 'HAVEN10' || code === 'BOOSTINGHAVEN' || code === 'FCPRO10' || code === 'DBA10') {
       setDiscountPercent(0.10); // 10% off
       showToast('Promo code applied: 10% OFF!', 'success');
     } else {
-      showToast('Invalid promo code. Try "FCPRO10"', 'error');
+      showToast('Invalid promo code. Try "HAVEN10"', 'error');
     }
   };
 
@@ -74,8 +76,14 @@ export default function CartDrawer() {
       clearCart();
       setIsCartOpen(false);
       setStep('cart');
-      showToast(`Order #${created.id} confirmed! Opening Live Tracker...`, 'success');
-      openTrackerWithId(created.id);
+      
+      const isAdmin = (user?.category || user?.role || '').toLowerCase() === 'admin' || (user?.category || user?.role || '').toLowerCase() === 'a';
+      if (isAdmin) {
+        showToast(`Order #${created.id} confirmed! Opening Admin Tracker...`, 'success');
+        openTrackerWithId(created.id);
+      } else {
+        showToast(`Order #${created.id} placed successfully! Our pro team has received your order.`, 'success');
+      }
     } catch {
       showToast('Failed to create order. Please try again.', 'error');
     } finally {
@@ -84,16 +92,28 @@ export default function CartDrawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans select-none">
-      {/* Backdrop */}
-      <div
-        onClick={() => setIsCartOpen(false)}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-      />
+    <AnimatePresence>
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans select-none">
+          {/* Animated Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsCartOpen(false)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          />
 
-      {/* Drawer Container */}
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
-        <div className="w-screen max-w-full sm:max-w-lg bg-[#0B0D13] border-l border-[#262B3D] shadow-2xl flex flex-col justify-between">
+          {/* Drawer Container */}
+          <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="w-screen max-w-full sm:max-w-lg bg-[#0B0D13] border-l border-[#262B3D] shadow-2xl flex flex-col justify-between"
+            >
           
           {/* Header */}
           <div className="p-5 border-b border-[#262B3D] flex items-center justify-between bg-[#141824]">
@@ -150,7 +170,7 @@ export default function CartDrawer() {
                         </div>
                         <p className="text-[11px] text-gray-400">{item.details}</p>
                         <div className="text-sm font-black text-[#00F59B] pt-1">
-                          ${Number(item.price).toFixed(2)} USD
+                          {formatPrice(item.price, true)}
                         </div>
                       </div>
 
@@ -351,17 +371,17 @@ export default function CartDrawer() {
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal:</span>
-                  <span className="text-white">${cartTotal.toFixed(2)} USD</span>
+                  <span className="text-white">{formatPrice(cartTotal, true)}</span>
                 </div>
                 {discountPercent > 0 && (
                   <div className="flex justify-between text-[#00F59B]">
                     <span>Discount:</span>
-                    <span>-{(cartTotal * discountPercent).toFixed(2)} USD</span>
+                    <span>-{formatPrice(cartTotal * discountPercent, true)}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-baseline pt-2 border-t border-[#262B3D]">
-                  <span className="text-sm font-black text-white uppercase">Total in USD:</span>
-                  <span className="text-2xl font-black text-[#00F59B]">${finalTotal}</span>
+                  <span className="text-sm font-black text-white uppercase">Total ({currentCurrency.code}):</span>
+                  <span className="text-2xl font-black text-[#00F59B]">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
 
@@ -421,8 +441,10 @@ export default function CartDrawer() {
             </div>
           )}
 
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

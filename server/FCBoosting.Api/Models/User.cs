@@ -30,6 +30,9 @@ public class User
     public string Role { get; set; } = "Customer"; // "Customer" or "Admin"
 
     [MaxLength(50)]
+    public string Category { get; set; } = "Customer"; // "Admin", "Player", "Customer"
+
+    [MaxLength(50)]
     public string Status { get; set; } = "Active";
 
     [MaxLength(50)]

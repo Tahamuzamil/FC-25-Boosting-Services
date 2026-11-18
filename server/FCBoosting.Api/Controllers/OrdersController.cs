@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using FCBoosting.Api.Data;
 using FCBoosting.Api.Models;
@@ -8,19 +9,23 @@ namespace FCBoosting.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("OrdersRateLimit")]
 public class OrdersController : ControllerBase
 {
     private readonly FCBoostingDbContext _db;
     private readonly IOrderLifecycleService _lifecycle;
+    private readonly IDiscordBotService _discordBot;
     private readonly ILogger<OrdersController> _logger;
 
     public OrdersController(
         FCBoostingDbContext db,
         IOrderLifecycleService lifecycle,
+        IDiscordBotService discordBot,
         ILogger<OrdersController> logger)
     {
         _db = db;
         _lifecycle = lifecycle;
+        _discordBot = discordBot;
         _logger = logger;
     }
 
@@ -39,7 +44,7 @@ public class OrdersController : ControllerBase
             return BadRequest("Price must be greater than zero.");
         }
 
-        var orderRef = $"FC-ORD-{Random.Shared.Next(10000, 99999)}";
+        var orderRef = $"BH-ORD-{Random.Shared.Next(10000, 99999)}";
         var session = new OrderSessionToken
         {
             OrderReference = orderRef,
@@ -94,7 +99,7 @@ public class OrdersController : ControllerBase
 
         var orderNumber = !string.IsNullOrWhiteSpace(dto.OrderNumber) 
             ? dto.OrderNumber 
-            : $"FC-ORD-{Random.Shared.Next(10000, 99999)}";
+            : $"BH-ORD-{Random.Shared.Next(10000, 99999)}";
 
         // Idempotency check
         var existing = await _db.Orders.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
@@ -114,7 +119,7 @@ public class OrdersController : ControllerBase
         string? customerUserId = dto.UserId;
         if (string.IsNullOrWhiteSpace(customerUserId))
         {
-            var email = dto.CustomerEmail ?? $"{orderNumber.ToLower()}@customer.fcboosting.com";
+            var email = dto.CustomerEmail ?? $"{orderNumber.ToLower()}@customer.boostinghaven.com";
             var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (existingUser != null)
             {
@@ -141,15 +146,15 @@ public class OrdersController : ControllerBase
         {
             OrderNumber = orderNumber,
             UserId = customerUserId,
-            ServiceId = dto.ServiceId ?? "fc-custom",
-            ServiceName = dto.ServiceName ?? "FC 25 Custom Boost",
+            ServiceId = dto.ServiceId ?? "bh-custom",
+            ServiceName = dto.ServiceName ?? "Boosting Haven Package",
             PriceSnapshot = dto.Price,
             Platform = dto.Platform ?? "PS5",
             ContactMethod = dto.ContactMethod ?? "WhatsApp",
             PaymentMethod = dto.PaymentMethod ?? "Card",
             PaymentStatus = "Paid",
             CustomerName = dto.CustomerName ?? "Valued Customer",
-            CustomerEmail = dto.CustomerEmail ?? "customer@fcboosting.com",
+            CustomerEmail = dto.CustomerEmail ?? "customer@boostinghaven.com",
             GamerTag = dto.GamerTag ?? "Pending Setup",
             CustomerCredentialsEncrypted = dto.Credentials,
             DiscordUserId = dto.DiscordUserId,
@@ -199,6 +204,19 @@ public class OrdersController : ControllerBase
 
         _logger.LogInformation("Order #{OrderNumber} successfully persisted into SQL Server.", order.OrderNumber);
 
+        // Dispatch background Discord notification (Webhook or Bot Gateway)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _discordBot.NotifyNewOrderAsync(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to dispatch Discord order notification for #{OrderNumber}.", order.OrderNumber);
+            }
+        });
+
         return Ok(new
         {
             orderId = order.OrderId,
@@ -238,6 +256,18 @@ public class OrdersController : ControllerBase
             customerName: dto.CustomerName ?? "WhatsApp Customer",
             customerEmail: dto.CustomerEmail ?? "pending_whatsapp@customer.com",
             customOrderRef: dto.OrderReference);
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _discordBot.NotifyNewOrderAsync(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to dispatch Discord notification for WhatsApp order #{OrderNumber}.", order.OrderNumber);
+            }
+        });
 
         return Ok(new
         {
@@ -281,6 +311,18 @@ public class OrdersController : ControllerBase
             await _db.SaveChangesAsync();
         }
 
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _discordBot.NotifyNewOrderAsync(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to dispatch Discord notification for order #{OrderNumber}.", order.OrderNumber);
+            }
+        });
+
         return Ok(new
         {
             orderId = order.OrderId,
@@ -291,12 +333,57 @@ public class OrdersController : ControllerBase
         });
     }
 
+    [HttpPost("discord/test")]
+    public async Task<IActionResult> TestDiscordNotification([FromQuery] string? message)
+    {
+        var testOrder = new Order
+        {
+            OrderNumber = $"TEST-ORD-{Random.Shared.Next(1000, 9999)}",
+            ServiceName = "Champions Finals 15 Wins (Test Boost)",
+            Platform = "PS5",
+            PriceSnapshot = 49.99m,
+            CustomerName = "Test Gamer",
+            GamerTag = "ProTester_99",
+            ContactMethod = "Discord",
+            Status = "Pending",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var success = await _discordBot.NotifyNewOrderAsync(testOrder);
+        return Ok(new
+        {
+            sent = success,
+            message = success ? "Test notification successfully sent to Discord!" : "Discord Webhook or Bot not yet configured with valid credentials in appsettings.json.",
+            order = testOrder.OrderNumber
+        });
+    }
+
     [HttpGet("track/{reference}")]
-    public async Task<IActionResult> TrackOrder(string reference)
+    public async Task<IActionResult> TrackOrder(string reference, [FromQuery] string? role = null)
     {
         if (string.IsNullOrWhiteSpace(reference))
         {
             return BadRequest("Reference is required.");
+        }
+
+        // Scenario Enforcement: Only Admin can track orders; customers cannot track orders.
+        bool isAdmin = false;
+        if (!string.IsNullOrWhiteSpace(role) && (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) || role.Equals("A", StringComparison.OrdinalIgnoreCase)))
+        {
+            isAdmin = true;
+        }
+        else if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.Claims.Any(c => c.Value.Equals("Admin", StringComparison.OrdinalIgnoreCase))))
+        {
+            isAdmin = true;
+        }
+
+        if (!isAdmin)
+        {
+            return StatusCode(403, new
+            {
+                restricted = true,
+                message = "Access Denied: Only Admin operators can track orders. Customers cannot track orders directly."
+            });
         }
 
         var refClean = reference.Trim();
@@ -413,7 +500,7 @@ public class OrdersController : ControllerBase
                 {
                     UserId = senderId,
                     DisplayName = dto.SenderRole == "Admin" ? "Admin Operator" : "Customer",
-                    Email = $"{senderId.ToLower().Replace(" ", "_")}@fcboosting.com",
+                    Email = $"{senderId.ToLower().Replace(" ", "_")}@boostinghaven.com",
                     Role = dto.SenderRole,
                     Status = "Active",
                     CreatedAt = DateTime.UtcNow,

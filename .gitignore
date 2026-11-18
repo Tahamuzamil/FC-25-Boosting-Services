@@ -34,3 +34,11 @@ server/**/bin/
 server/**/obj/
 
 .vercel
+
+# Environment & Sensitive Local Configurations
+.env
+.env.development
+.env.production
+.env.local
+server/**/appsettings.Development.json
+server/**/appsettings.*.local.json

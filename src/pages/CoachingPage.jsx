@@ -19,7 +19,7 @@ import {
 import { getAssetUrl } from '../utils/assets';
 
 export default function CoachingPage() {
-  const { addToCart, setIsCartOpen, openContactModal } = useApp();
+  const { addToCart, setIsCartOpen, openContactModal, formatPrice, currentCurrency } = useApp();
 
   const [selectedPlatform, setSelectedPlatform] = useState('ps5');
   const [selectedPackageId, setSelectedPackageId] = useState('package-2');
@@ -185,10 +185,10 @@ export default function CoachingPage() {
               Get personalized 1-on-1 coaching from Top 200 esports competitors over private Discord voice & 1080p screen share. Fix your mistakes, master the meta tactics, and unlock your true potential.
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleOrderDirect}
-                className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#5865F2] hover:opacity-95 text-[#0B0D13] font-black text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer shadow-lg shadow-[#00F59B]/20"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#5865F2] hover:opacity-95 text-[#0B0D13] font-black text-xs uppercase tracking-wider inline-flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-lg shadow-[#00F59B]/20 min-h-[48px]"
               >
                 <span>Book Instant Coaching Session</span>
                 <ArrowRight className="w-4 h-4" />
@@ -199,7 +199,7 @@ export default function CoachingPage() {
                   const element = document.getElementById('pricing-packages');
                   element?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="px-6 py-3.5 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all cursor-pointer hover:border-[#00F59B]/40"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider inline-flex items-center justify-center space-x-2 transition-all cursor-pointer hover:border-[#00F59B]/40 min-h-[48px]"
               >
                 <span>View Packages & Pricing</span>
                 <ArrowRight className="w-4 h-4" />
@@ -335,8 +335,8 @@ export default function CoachingPage() {
 
                     <div className="pt-2">
                       <div className="flex items-baseline space-x-1">
-                        <span className="text-3xl font-black text-[#00F59B]">${pkg.price}</span>
-                        <span className="text-xs text-gray-400 font-bold">USD</span>
+                        <span className="text-3xl font-black text-[#00F59B]">{formatPrice(pkg.price)}</span>
+                        <span className="text-xs text-gray-400 font-bold font-mono">{currentCurrency.code}</span>
                       </div>
                     </div>
 

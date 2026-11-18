@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import {
   ShieldCheck,
@@ -33,17 +34,28 @@ export default function Navbar() {
     setIsTrackerOpen,
     theme,
     toggleTheme,
+    currency,
+    changeCurrency,
+    currentCurrency,
+    CURRENCIES,
   } = useApp();
 
+  const isAdmin = (user?.category || user?.role || '').toLowerCase() === 'admin' || (user?.category || user?.role || '').toLowerCase() === 'a';
+
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const currencyDropdownRef = useRef(null);
 
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsServicesOpen(false);
+      }
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target)) {
+        setIsCurrencyOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -115,65 +127,110 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full select-none font-sans">
       
       {/* Top Utility Bar */}
-      <div className="w-full bg-[#080A0F] border-b border-[#262B3D]/60 py-1.5 px-4 sm:px-8 lg:px-12 text-[11px] text-gray-400 font-medium">
-        <div className="max-w-[1720px] mx-auto flex items-center justify-between gap-2">
+      <div className="w-full bg-[#080A0F] border-b border-[#1C2433] py-2 px-4 sm:px-8 lg:px-12 text-[11px] text-gray-400 font-medium">
+        <div className="max-w-[1720px] mx-auto flex items-center justify-between gap-4">
           
-          {/* Live Pros Indicator */}
-          <div className="flex items-center space-x-2 sm:space-x-3 overflow-hidden text-ellipsis whitespace-nowrap">
-            <span className="flex items-center space-x-1.5 text-gray-300">
-              <span className="w-2 h-2 rounded-full bg-[#00F59B] animate-pulse shrink-0"></span>
-              <span className="text-[#00F59B] font-bold">14 Pros Online</span>
-              <span className="hidden md:inline">| Ready for Instant Start</span>
+          {/* Top Bar Left: Fast & Safe Boosting | 24/7 Support | Professional Players | Secure & Confidential */}
+          <div className="flex items-center space-x-4 sm:space-x-6 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold text-gray-300">
+            <span className="flex items-center space-x-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#00F59B]" />
+              <span>Fast & Safe Boosting</span>
             </span>
-            <span className="hidden lg:inline-flex items-center text-gray-400">
-              🛡️ Safe Regional VPN Encrypted
+            <span className="hidden sm:flex items-center space-x-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#00F59B]" />
+              <span>24/7 Support</span>
+            </span>
+            <span className="hidden md:flex items-center space-x-1.5">
+              <User className="w-3.5 h-3.5 text-[#00F59B]" />
+              <span>Professional Players</span>
+            </span>
+            <span className="hidden lg:flex items-center space-x-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#00F59B]" />
+              <span>Secure & Confidential</span>
             </span>
           </div>
 
-          {/* Quick Actions (Theme Switcher, Admin, Track, Currency) */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3.5 shrink-0">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-[#141824] border border-[#262B3D] text-[10px] sm:text-xs font-bold transition-all cursor-pointer hover:border-[#00F59B]/50"
-              title={theme === 'dark' ? 'Switch to Light Theme (Red & White)' : 'Switch to Dark Theme'}
-            >
-              {theme === 'dark' ? (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-[#FFB800]" />
-                  <span className="hidden xs:inline text-gray-300">Light</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-red-600" />
-                  <span className="hidden xs:inline text-gray-800">Dark</span>
-                </>
-              )}
-            </button>
+          {/* Top Bar Right: Currency Dropdown, Admin Portal, Track */}
+          <div className="flex items-center space-x-3 sm:space-x-4 shrink-0 text-xs font-bold">
+            {/* Interactive Currency Selector Dropdown */}
+            <div className="relative" ref={currencyDropdownRef}>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                className="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-gray-200 hover:text-white transition-colors cursor-pointer shadow-sm"
+              >
+                <span className="text-sm">{currentCurrency.flag}</span>
+                <span>{currentCurrency.code}</span>
+                <span className="text-[#00F59B] text-[11px] font-mono">({currentCurrency.symbol.trim()})</span>
+                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180 text-[#00F59B]' : ''}`} />
+              </motion.button>
 
-            <button
-              onClick={() => handleNavClick('admin')}
-              className={`flex items-center space-x-1 transition-colors cursor-pointer text-[10px] sm:text-xs font-bold ${
-                currentPage === 'admin' ? 'text-[#FF3B30]' : 'text-gray-300 hover:text-[#FF3B30]'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#FF3B30]" />
-              <span className="hidden xs:inline">Admin</span>
-              <span>Portal</span>
-            </button>
-
-            <button
-              onClick={() => setIsTrackerOpen(true)}
-              className="flex items-center space-x-1 hover:text-[#00F59B] transition-colors cursor-pointer text-[10px] sm:text-xs"
-            >
-              <Search className="w-3.5 h-3.5 text-[#00F59B]" />
-              <span className="font-semibold text-gray-200 hover:text-[#00F59B]">Track</span>
-            </button>
-
-            <div className="hidden sm:flex items-center space-x-1 text-gray-300 bg-[#141824] px-2 py-0.5 rounded border border-[#262B3D]">
-              <span className="text-[10px] text-gray-400 font-bold">USD</span>
-              <span className="font-bold text-[#00F59B]">($)</span>
+              {/* Currency Dropdown Panel */}
+              <AnimatePresence>
+                {isCurrencyOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1.5 w-52 bg-[#141824] border border-[#262B3D] rounded-2xl shadow-2xl p-1.5 z-50 overflow-hidden"
+                  >
+                    <div className="px-2.5 py-1 text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-[#262B3D]">
+                      Select Currency
+                    </div>
+                    <div className="max-h-60 overflow-y-auto space-y-0.5 pt-1">
+                      {Object.values(CURRENCIES).map((curr) => {
+                        const isSelected = currency === curr.code;
+                        return (
+                          <button
+                            key={curr.code}
+                            onClick={() => {
+                              changeCurrency(curr.code);
+                              setIsCurrencyOpen(false);
+                            }}
+                            className={`w-full px-2.5 py-2 rounded-xl text-left text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#00F59B]/15 text-[#00F59B] border border-[#00F59B]/30'
+                                : 'text-gray-300 hover:bg-[#1C2234] hover:text-white'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <span className="text-base">{curr.flag}</span>
+                              <div>
+                                <div className="font-black leading-none">{curr.code}</div>
+                                <div className="text-[10px] text-gray-400 font-normal mt-0.5">{curr.name}</div>
+                              </div>
+                            </div>
+                            <span className="font-mono font-black text-xs text-[#00F59B]">{curr.symbol}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => handleNavClick('admin')}
+                  className="flex items-center space-x-1 text-red-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5 text-red-400" />
+                  <span>Admin Portal</span>
+                </button>
+
+                <button
+                  onClick={() => setIsTrackerOpen(true)}
+                  className="flex items-center space-x-1 text-red-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <Target className="w-3.5 h-3.5 text-red-400" />
+                  <span>Admin Tracker</span>
+                </button>
+              </>
+            )}
           </div>
 
         </div>
@@ -190,48 +247,46 @@ export default function Navbar() {
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#141824] to-[#1C2234] border border-[#262B3D] group-hover:border-[#00F59B]/50 flex items-center justify-center shadow-lg transition-all">
               <span className="text-lg sm:text-xl font-black italic tracking-tighter text-[#00F59B] group-hover:scale-105 transition-transform">
-                FC
+                BH
               </span>
             </div>
             <div className="flex flex-col leading-none">
-              <div className="flex items-center space-x-1">
-                <span className="text-base sm:text-xl font-black tracking-wider text-white uppercase italic">
-                  BOOST<span className="text-[#00F59B]">PRO</span>
-                </span>
-                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded bg-[#FF3B30] text-white">
-                  FC 25/26
-                </span>
-              </div>
-              <span className="text-[8px] sm:text-[9px] font-bold tracking-[0.25em] text-gray-400 uppercase -mt-0.5">
-                ELITE SERVICES
+              <span className="text-base sm:text-xl font-black tracking-wider text-white uppercase italic">
+                BOOSTING<span className="text-[#00F59B]">HAVEN</span>
+              </span>
+              <span className="text-[8px] sm:text-[9px] font-bold tracking-[0.22em] text-gray-400 uppercase mt-0.5">
+                PREMIUM SERVICES
               </span>
             </div>
           </div>
 
-          {/* Desktop Center Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+          {/* Desktop Center Navigation Links: Exactly as in Image */}
+          <div className="hidden lg:flex items-center space-x-2 xl:space-x-3">
             <button
               onClick={() => handleNavClick('home')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all relative ${
                 currentPage === 'home'
-                  ? 'text-white bg-[#141824] border border-[#262B3D]'
-                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+                  ? 'text-[#00F59B]'
+                  : 'text-gray-300 hover:text-white'
               }`}
             >
-              Home
+              <span>HOME</span>
+              {currentPage === 'home' && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#00F59B]" />
+              )}
             </button>
 
             {/* Services Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsServicesOpen(!isServicesOpen)}
-                className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all inline-flex items-center space-x-1.5 ${
-                  isServicesOpen || ['ut-champions', 'division-rivals', 'all-services', 'coaching'].includes(currentPage)
-                    ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
-                    : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+                className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center space-x-1 ${
+                  isServicesOpen || ['all-services', 'coaching'].includes(currentPage)
+                    ? 'text-[#00F59B]'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
-                <span>Services Catalog</span>
+                <span>SERVICES CATALOG</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isServicesOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -273,124 +328,155 @@ export default function Navbar() {
 
             <button
               onClick={() => handleNavClick('ut-champions')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all relative ${
                 currentPage === 'ut-champions'
-                  ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
-                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+                  ? 'text-[#00F59B]'
+                  : 'text-gray-300 hover:text-white'
               }`}
             >
-              UT Champions
+              <span>UT CHAMPIONS</span>
+              {currentPage === 'ut-champions' && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#00F59B]" />
+              )}
             </button>
 
             <button
               onClick={() => handleNavClick('division-rivals')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all relative ${
                 currentPage === 'division-rivals'
-                  ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
-                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+                  ? 'text-[#00F59B]'
+                  : 'text-gray-300 hover:text-white'
               }`}
             >
-              Division Rivals
-            </button>
-
-            <button
-              onClick={() => handleNavClick('coaching')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-                currentPage === 'coaching'
-                  ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
-                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
-              }`}
-            >
-              Coaching
+              <span>DIVISION RIVALS</span>
+              {currentPage === 'division-rivals' && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#00F59B]" />
+              )}
             </button>
 
             <button
               onClick={() => handleNavClick('about')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all relative ${
                 currentPage === 'about'
-                  ? 'text-[#00F59B] bg-[#141824] border border-[#262B3D]'
-                  : 'text-gray-300 hover:text-white hover:bg-[#141824]/60'
+                  ? 'text-[#00F59B]'
+                  : 'text-gray-300 hover:text-white'
               }`}
             >
-              About Us
-            </button>
-
-            <button
-              onClick={() => handleNavClick('admin')}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 ${
-                currentPage === 'admin'
-                  ? 'text-[#FF3B30] bg-[#141824] border border-[#FF3B30]/40'
-                  : 'text-gray-300 hover:text-[#FF3B30] hover:bg-[#141824]/60'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#FF3B30]" />
-              <span>Admin & Boosters</span>
-            </button>
-          </div>
-
-          {/* Right Action Icons & Mobile Hamburger */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            
-            {/* Theme Toggle Button (Desktop) */}
-            <button
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-gray-200 hover:text-[#00F59B] transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
-              title={theme === 'dark' ? 'Switch to Light Theme (Red & White)' : 'Switch to Dark Theme'}
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-[#FFB800]" />
-              ) : (
-                <Moon className="w-4 h-4 text-red-600" />
+              <span>ABOUT US</span>
+              {currentPage === 'about' && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#00F59B]" />
               )}
             </button>
 
-            {/* User Account / Auth Trigger */}
-            {user ? (
+            {/* Dynamic Dashboard Link based on User Category */}
+            {user && (user.category === 'Admin' || user.category === 'A' || user.role === 'Admin') && (
               <button
-                onClick={() => setIsDashboardOpen(true)}
-                className="flex items-center space-x-1.5 bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all cursor-pointer min-h-[38px]"
+                onClick={() => handleNavClick('admin')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-1.5 ${
+                  currentPage === 'admin'
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                    : 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30'
+                }`}
               >
-                <div className="w-5 h-5 rounded-lg bg-[#00F59B]/20 text-[#00F59B] flex items-center justify-center font-black text-[11px]">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="hidden sm:inline text-gray-200">{user.name}</span>
-                <span className="text-[9px] text-[#00F59B] uppercase font-black bg-[#00F59B]/10 px-1 py-0.2 rounded">
-                  Orders
-                </span>
-              </button>
-            ) : (
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center space-x-1 text-xs font-bold uppercase tracking-wider text-gray-300 hover:text-white bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer min-h-[38px]"
-              >
-                <User className="w-3.5 h-3.5 text-[#00F59B]" />
-                <span className="hidden xs:inline">Sign In</span>
+                <span>🛡️ ADMIN PANEL</span>
               </button>
             )}
 
-            {/* Cart Button */}
-            <button
+            {user && (user.category === 'Player' || user.category === 'P' || user.role === 'Player') && (
+              <button
+                onClick={() => handleNavClick('player-dashboard')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-1.5 ${
+                  currentPage === 'player-dashboard'
+                    ? 'bg-[#00F59B] text-[#0B0D13] shadow-lg shadow-[#00F59B]/20'
+                    : 'bg-[#00F59B]/10 hover:bg-[#00F59B]/20 text-[#00F59B] border border-[#00F59B]/30'
+                }`}
+              >
+                <span>🎮 PLAYER DASHBOARD</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right Action Icons (Circular Buttons: Search, User, Cart) */}
+          <div className="flex items-center space-x-2.5">
+            
+            {/* Search / Services Trigger */}
+            <motion.button
+              whileHover={{ scale: 1.1, backgroundColor: '#1A2232' }}
+              whileTap={{ scale: 0.92 }}
+              onClick={() => (isAdmin ? setIsTrackerOpen(true) : handleNavClick('all-services'))}
+              className="w-9 h-9 rounded-full bg-[#121722] border border-[#1C2433] text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              title={isAdmin ? "Admin Order Tracker" : "Search Services"}
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </motion.button>
+
+            {/* User Account / Auth Trigger */}
+            <motion.button
+              whileHover={{ scale: 1.1, backgroundColor: '#1A2232' }}
+              whileTap={{ scale: 0.92 }}
+              onClick={() => {
+                if (!user) {
+                  setIsAuthModalOpen(true);
+                  return;
+                }
+                const cat = (user.category || user.role || 'Customer').toLowerCase();
+                if (cat === 'admin' || cat === 'a') {
+                  setCurrentPage('admin');
+                } else if (cat === 'player' || cat === 'p' || cat === 'booster') {
+                  setCurrentPage('player-dashboard');
+                } else {
+                  setIsDashboardOpen(true);
+                }
+              }}
+              className="w-9 h-9 rounded-full bg-[#121722] border border-[#1C2433] text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer relative"
+              title={user ? `${user.name} (${user.category || user.role || 'Customer'})` : 'Sign In'}
+              aria-label="User Account"
+            >
+              <User className="w-4 h-4" />
+              {user && (
+                <span className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#0B0D13] ${
+                  (user.category || user.role || '').toLowerCase() === 'admin' || (user.category || user.role || '').toLowerCase() === 'a'
+                    ? 'bg-red-500'
+                    : (user.category || user.role || '').toLowerCase() === 'player' || (user.category || user.role || '').toLowerCase() === 'p'
+                    ? 'bg-[#00F59B]'
+                    : 'bg-emerald-400'
+                }`} />
+              )}
+            </motion.button>
+
+            {/* Shopping Cart Button with Circular Badge */}
+            <motion.button
+              whileHover={{ scale: 1.1, backgroundColor: '#1A2232' }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#262B3D] text-gray-200 hover:text-[#00F59B] transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center group"
+              className="relative w-9 h-9 rounded-full bg-[#121722] border border-[#1C2433] text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer group"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 transition-transform group-hover:scale-110" />
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-4.5 bg-[#00F59B] text-[#0B0D13] font-black text-[10px] rounded-full flex items-center justify-center px-1 shadow-md shadow-[#00F59B]/30 animate-pulse">
+              <ShoppingBag className="w-4 h-4 transition-transform group-hover:scale-105" />
+              <AnimatePresence>
+                <motion.span
+                  key={cart.length}
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: [1, 1.25, 1] }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-[#00F59B] text-[#080B11] font-black text-[10px] rounded-full flex items-center justify-center shadow-md"
+                >
                   {cart.length}
-                </span>
-              )}
-            </button>
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
 
-            {/* Mobile Menu Toggle Button (iPhone / Android / Tab) */}
-            <button
+            {/* Mobile Menu Toggle Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-xl bg-[#141824] border border-[#262B3D] text-gray-300 hover:text-white min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer"
+              className="lg:hidden w-9 h-9 rounded-full bg-[#121722] border border-[#1C2433] text-gray-300 hover:text-white flex items-center justify-center cursor-pointer"
               aria-label="Toggle navigation menu"
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5 text-[#00F59B]" /> : <Menu className="w-5 h-5" />}
-            </button>
+              {isMobileMenuOpen ? <X className="w-4 h-4 text-[#00F59B]" /> : <Menu className="w-4 h-4" />}
+            </motion.button>
 
           </div>
 
@@ -398,7 +484,7 @@ export default function Navbar() {
 
         {/* Mobile Fullscreen Slide Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-[88px] bottom-0 z-50 bg-[#0B0D13]/98 backdrop-blur-2xl p-4 overflow-y-auto animate-in slide-in-from-top-4 duration-200 border-t border-[#262B3D] flex flex-col justify-between">
+          <div className="lg:hidden fixed inset-x-0 top-[76px] sm:top-[84px] bottom-0 z-50 bg-[#0B0D13]/98 backdrop-blur-2xl p-4 pb-28 overflow-y-auto animate-in slide-in-from-top-4 duration-200 border-t border-[#262B3D] flex flex-col justify-between">
             
             <div className="space-y-4">
               
@@ -450,7 +536,7 @@ export default function Navbar() {
                     currentPage === 'about' ? 'bg-[#141824] border-[#00F59B] text-[#00F59B]' : 'bg-[#141824]/60 border-[#262B3D] text-white'
                   }`}
                 >
-                  <span>About FC BOOST PRO</span>
+                  <span>About Boosting Haven</span>
                   <span className="text-[10px] text-[#00F59B]">🛡️</span>
                 </button>
               </div>
@@ -507,19 +593,21 @@ export default function Navbar() {
                   </span>
                 </button>
 
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    setIsTrackerOpen(true);
-                  }}
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#0B0D13] border border-[#262B3D] text-white font-bold flex items-center justify-between"
-                >
-                  <span className="flex items-center space-x-2">
-                    <Search className="w-4 h-4 text-[#00F59B]" />
-                    <span>Track Live Order Status</span>
-                  </span>
-                  <span className="text-gray-400">→</span>
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsTrackerOpen(true);
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-bold flex items-center justify-between"
+                  >
+                    <span className="flex items-center space-x-2">
+                      <Search className="w-4 h-4 text-red-400" />
+                      <span>Admin Order Tracker</span>
+                    </span>
+                    <span className="text-red-400">→</span>
+                  </button>
+                )}
               </div>
 
             </div>
@@ -556,9 +644,28 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>Currency: <strong className="text-white">USD ($)</strong></span>
-                <span className="text-[#00F59B] font-bold">100% Ban-Free Protected</span>
+              {/* Mobile Currency Selector */}
+              <div className="p-3 rounded-xl bg-[#141824] border border-[#262B3D] space-y-2">
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>Currency: <strong className="text-white">{currentCurrency.flag} {currentCurrency.code} ({currentCurrency.symbol.trim()})</strong></span>
+                  <span className="text-[#00F59B] font-bold">Live Conversion</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  {Object.values(CURRENCIES).map((curr) => (
+                    <button
+                      key={curr.code}
+                      onClick={() => changeCurrency(curr.code)}
+                      className={`px-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1 border transition-colors ${
+                        currency === curr.code
+                          ? 'bg-[#00F59B] text-[#0B0D13] border-[#00F59B]'
+                          : 'bg-[#0B0D13] text-gray-300 border-[#262B3D]'
+                      }`}
+                    >
+                      <span>{curr.flag}</span>
+                      <span>{curr.code}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {user ? (

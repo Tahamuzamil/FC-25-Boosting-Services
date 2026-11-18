@@ -92,7 +92,7 @@ export default function AboutUsPage() {
           <div className="max-w-3xl space-y-4 relative z-10">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#00F59B]/10 border border-[#00F59B]/30 text-[#00F59B] text-xs font-black uppercase tracking-widest">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>ABOUT FC BOOST PRO</span>
+              <span>ABOUT BOOSTING HAVEN</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-tight">
@@ -103,7 +103,7 @@ export default function AboutUsPage() {
             </h1>
 
             <p className="text-sm sm:text-base lg:text-lg text-gray-300 leading-relaxed max-w-2xl">
-              FC BOOST PRO was founded with a singular mission: to provide EA Sports FC players with the safest, fastest, and most transparent boosting and coaching experience in competitive gaming.
+              Boosting Haven was founded with a singular mission: to provide gamers with the safest, fastest, and most transparent boosting and coaching experience in competitive gaming.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-3">
@@ -161,7 +161,7 @@ export default function AboutUsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-[#141824]/40 border border-[#262B3D] rounded-3xl p-6 sm:p-10">
           <div className="lg:col-span-7 space-y-5">
             <span className="text-xs font-black uppercase tracking-[0.2em] text-[#00F59B]">
-              /// THE FC BOOST PRO STORY
+              /// THE BOOSTING HAVEN STORY
             </span>
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight">
               Why We Revolutionized the Boosting Industry
@@ -310,7 +310,7 @@ export default function AboutUsPage() {
         <div className="bg-gradient-to-r from-[#181C28] via-[#141824] to-[#181C28] border border-[#00F59B]/30 rounded-3xl p-8 sm:p-12 text-center space-y-5 shadow-2xl relative overflow-hidden">
           <div className="max-w-2xl mx-auto space-y-3">
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight">
-              Ready to Experience Elite FC Boosting?
+              Ready to Experience Elite Boosting Haven Services?
             </h2>
             <p className="text-xs sm:text-sm text-gray-300">
               Join thousands of satisfied players across PlayStation, Xbox, and PC. Safe, fast, and 100% ban-free.
@@ -332,7 +332,7 @@ export default function AboutUsPage() {
               onClick={() => {
                 openContactModal({
                   serviceName: 'Custom Boost Consultation',
-                  details: 'Direct consultation with FC BOOST PRO Operations desk',
+                  details: 'Direct consultation with Boosting Haven Operations desk',
                   price: 0,
                   platform: 'ps5',
                 });

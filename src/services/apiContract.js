@@ -1,12 +1,15 @@
 /**
  * ASP.NET Core Web API Client & SQL Server Integration
- * Dual-Mode: Communicates with live ASP.NET Core backend (port 5268)
+ * Dual-Mode: Communicates with live ASP.NET Core backend (https://localhost:7296)
  * and provides robust local-state fallback for offline / static Vercel environments.
  */
 
 import { SAMPLE_ORDERS } from '../data/mockData';
 
-const BASE_API_URL = ''; // Relative URL handled by Vite proxy to localhost:5268
+export const BACKEND_API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://localhost:7296';
+export const SWAGGER_DOCS_URL = import.meta.env?.VITE_SWAGGER_URL || 'https://localhost:7296/swagger/index.html';
+
+const BASE_API_URL = ''; // Handled by Vite proxy to https://localhost:7296 in dev
 
 export const API_ENDPOINTS = {
   // Orders
@@ -24,6 +27,11 @@ export const API_ENDPOINTS = {
   ADMIN_ORDER_AUDIT: (orderId) => `/api/admin/orders/${encodeURIComponent(orderId)}/audit`,
   ADMIN_BOOSTERS: '/api/admin/boosters',
 
+  // Auth
+  AUTH_LOGIN: '/api/auth/login',
+  AUTH_REGISTER: '/api/auth/register',
+  AUTH_ME: '/api/auth/me',
+
   // Player / Pro Booster
   PLAYER_AVAILABLE_ORDERS: '/api/player/available-orders',
   PLAYER_MY_ORDERS: (playerId) => `/api/player/my-orders/${encodeURIComponent(playerId)}`,
@@ -35,14 +43,31 @@ export const API_ENDPOINTS = {
 
 export const apiClient = {
   /**
-   * Track order by reference code or Order ID
+   * Track order by reference code or Order ID (Only Admin Can Track Orders)
    */
-  async trackOrder(orderId) {
+  async trackOrder(orderId, requesterRole = null) {
     if (!orderId) return null;
     const cleanId = orderId.trim();
 
+    // Check if requester is Admin
+    const cleanRole = (requesterRole || '').toLowerCase().trim();
+    const isAdmin = cleanRole === 'admin' || cleanRole === 'a';
+
+    if (!isAdmin) {
+      return {
+        restricted: true,
+        message: 'Access Denied: Only Admin operators can track orders. Customers cannot track orders directly.',
+      };
+    }
+
     try {
-      const response = await fetch(API_ENDPOINTS.TRACK_ORDER(cleanId));
+      const response = await fetch(`${API_ENDPOINTS.TRACK_ORDER(cleanId)}?role=${encodeURIComponent(requesterRole || 'Admin')}`);
+      if (response.status === 403) {
+        return {
+          restricted: true,
+          message: 'Access Denied: Only Admin operators can track orders. Customers cannot track orders directly.',
+        };
+      }
       if (response.ok) {
         const live = await response.json();
         return {
@@ -69,11 +94,11 @@ export const apiClient = {
         };
       }
     } catch {
-      // Backend unreachable; gracefully fallback to local cache
+      // Backend unreachable; gracefully fallback to local cache for Admin
     }
 
-    // LocalStorage / mock fallback
-    const localOrders = JSON.parse(localStorage.getItem('fc_orders') || '[]');
+    // LocalStorage / mock fallback (Admin only)
+    const localOrders = JSON.parse(localStorage.getItem('haven_orders') || localStorage.getItem('fc_orders') || '[]');
     const found = localOrders.find(
       (o) => (o.id || o.orderNumber || '').toLowerCase() === cleanId.toLowerCase()
     );
@@ -88,16 +113,16 @@ export const apiClient = {
    * Create an order in SQL Server database via C# API
    */
   async createOrder(orderPayload) {
-    const orderRef = orderPayload.id || `FC-ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    const orderRef = orderPayload.id || `BH-ORD-${Math.floor(10000 + Math.random() * 90000)}`;
 
     const dto = {
       orderNumber: orderRef,
       userId: orderPayload.userId || 'guest',
       customerName: orderPayload.customerName || 'Valued Customer',
-      customerEmail: orderPayload.customerEmail || 'customer@fcboosting.com',
+      customerEmail: orderPayload.customerEmail || 'customer@boostinghaven.com',
       gamerTag: orderPayload.gamerTag || 'Pending Tag',
-      serviceId: orderPayload.serviceId || 'fc-custom-service',
-      serviceName: orderPayload.serviceName || 'FC 25 Boosting Package',
+      serviceId: orderPayload.serviceId || 'bh-custom-service',
+      serviceName: orderPayload.serviceName || 'Boosting Haven Package',
       platform: (orderPayload.platform || 'PS5').toUpperCase(),
       contactMethod: orderPayload.contactMethod || 'WhatsApp',
       paymentMethod: orderPayload.paymentMethod || 'Card',
@@ -145,8 +170,9 @@ export const apiClient = {
       ],
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem('fc_orders') || '[]');
+    const existingOrders = JSON.parse(localStorage.getItem('haven_orders') || localStorage.getItem('fc_orders') || '[]');
     const updated = [fullOrder, ...existingOrders];
+    localStorage.setItem('haven_orders', JSON.stringify(updated));
     localStorage.setItem('fc_orders', JSON.stringify(updated));
 
     return fullOrder;
@@ -334,5 +360,92 @@ export const apiClient = {
       // Fallback
     }
     return [];
+  },
+
+  /**
+   * Fetch orders assigned to a specific booster
+   */
+  async fetchMyOrders(playerId) {
+    try {
+      const res = await fetch(API_ENDPOINTS.PLAYER_MY_ORDERS(playerId));
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback
+    }
+    return [];
+  },
+
+  /**
+   * Login user and check Category (Admin, Player, Customer)
+   */
+  async login(email, password) {
+    try {
+      const res = await fetch(API_ENDPOINTS.AUTH_LOGIN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) return data.user;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    // Local fallback if offline
+    const clean = (email || '').toLowerCase().trim();
+    let cat = 'Customer';
+    if (clean.includes('admin') || clean === 'a') cat = 'Admin';
+    else if (clean.includes('player') || clean.includes('booster') || clean === 'p' || clean.includes('flash') || clean.includes('kaiser')) cat = 'Player';
+
+    return {
+      id: 'usr-' + (clean.split('@')[0] || 'user'),
+      email: email,
+      name: email.split('@')[0],
+      category: cat,
+      role: cat,
+      discordTag: email.split('@')[0] + '#BH',
+    };
+  },
+
+  /**
+   * Register user with specific category (Customer or Player) and pictures
+   */
+  async register(name, email, password, category = 'Customer', options = {}) {
+    try {
+      const payload = {
+        name,
+        email,
+        password,
+        category,
+        avatarUrl: options.avatarUrl || null,
+        rankProofPictureUrl: options.rankProofPictureUrl || null,
+        platformSpecialty: options.platformSpecialty || 'PS5',
+        competitiveRankTier: options.competitiveRankTier || 'Top 200 Global',
+      };
+      const res = await fetch(API_ENDPOINTS.AUTH_REGISTER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) return data.user;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    return {
+      id: 'usr-' + Date.now(),
+      name,
+      email,
+      category,
+      role: category,
+      avatarUrl: options.avatarUrl || null,
+      rankProofPictureUrl: options.rankProofPictureUrl || null,
+      discordTag: name + '#BH',
+    };
   },
 };

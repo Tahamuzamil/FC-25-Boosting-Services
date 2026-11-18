@@ -43,6 +43,7 @@ public class DiscordBotService : IDiscordBotService, IHostedService
 
             _client.Log += LogAsync;
             _client.Ready += OnReadyAsync;
+            _client.JoinedGuild += AutoProvisionGuildAsync;
             _client.SlashCommandExecuted += HandleSlashCommandAsync;
             _client.ButtonExecuted += HandleButtonExecutedAsync;
             _client.ModalSubmitted += HandleModalSubmittedAsync;
@@ -99,10 +100,109 @@ public class DiscordBotService : IDiscordBotService, IHostedService
             await _client.CreateGlobalApplicationCommandAsync(statusCommand.Build());
             await _client.CreateGlobalApplicationCommandAsync(panelCommand.Build());
             _logger.LogInformation("Global slash commands registered successfully.");
+
+            // Auto-provision server structure for all connected guilds
+            foreach (var guild in _client.Guilds)
+            {
+                _ = Task.Run(async () => await AutoProvisionGuildAsync(guild));
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to register Discord slash commands.");
+        }
+    }
+
+    private async Task AutoProvisionGuildAsync(SocketGuild guild)
+    {
+        try
+        {
+            _logger.LogInformation("Auto-provisioning Discord community server '{GuildName}' ({GuildId})...", guild.Name, guild.Id);
+
+            // 1. Ensure Roles
+            var roles = guild.Roles.ToList();
+            if (!roles.Any(r => r.Name.Contains("Pro Booster", StringComparison.OrdinalIgnoreCase)))
+            {
+                await guild.CreateRoleAsync("Verified Pro Booster", GuildPermissions.None, new Color(0, 245, 155), isHoisted: true);
+            }
+            if (!roles.Any(r => r.Name.Contains("VIP Customer", StringComparison.OrdinalIgnoreCase)))
+            {
+                await guild.CreateRoleAsync("VIP Customer", GuildPermissions.None, new Color(255, 184, 0), isHoisted: true);
+            }
+
+            // 2. INFORMATION Category & Channels
+            ICategoryChannel? infoCat = guild.CategoryChannels.FirstOrDefault(c => c.Name.Contains("INFORMATION", StringComparison.OrdinalIgnoreCase));
+            if (infoCat == null)
+            {
+                infoCat = await guild.CreateCategoryChannelAsync("📢 │ INFORMATION");
+            }
+
+            ITextChannel? welcomeChan = guild.TextChannels.FirstOrDefault(c => c.Name.Contains("welcome-rules"));
+            if (welcomeChan == null)
+            {
+                welcomeChan = await guild.CreateTextChannelAsync("welcome-rules", p => p.CategoryId = infoCat.Id);
+                var welcomeEmbed = new EmbedBuilder()
+                    .WithTitle("🏆 WELCOME TO BOOSTING HAVEN OFFICIAL COMMUNITY")
+                    .WithDescription("The premier professional EA Sports FC boosting, coaching, and Champions service.\n\n" +
+                                     "**🛡️ Ban-Free Residential VPN Protocol**\nAll matches are piloted using dedicated residential IPs matching your exact geographical location.\n\n" +
+                                     "**⚡ Top 200 Esports Qualifiers**\nRank 1 Champions, Elite Division, and 1-on-1 private coaching.")
+                    .AddField("🌐 Official Website Store", "[Visit Boosting Haven Catalog](https://fc-25-boosting-services.vercel.app)")
+                    .AddField("🎫 Place an Order", "Head over to <#order-tickets> or configure your package on the website!")
+                    .WithColor(Color.Green)
+                    .WithCurrentTimestamp()
+                    .Build();
+                await welcomeChan.SendMessageAsync(embed: welcomeEmbed);
+            }
+
+            // 3. SUPPORT & TICKETS Category & Channels
+            ICategoryChannel? ticketCat = guild.CategoryChannels.FirstOrDefault(c => c.Name.Contains("SUPPORT & TICKETS", StringComparison.OrdinalIgnoreCase) || c.Name.Contains("SUPPORT TICKETS", StringComparison.OrdinalIgnoreCase));
+            if (ticketCat == null)
+            {
+                ticketCat = await guild.CreateCategoryChannelAsync("🎫 │ SUPPORT & TICKETS");
+            }
+
+            ITextChannel? ticketChan = guild.TextChannels.FirstOrDefault(c => c.Name == "order-tickets");
+            if (ticketChan == null)
+            {
+                ticketChan = await guild.CreateTextChannelAsync("order-tickets", p => p.CategoryId = ticketCat.Id);
+                
+                var panelEmbed = new EmbedBuilder()
+                    .WithTitle("🎮 BOOSTING HAVEN — 1-ON-1 ORDER TICKETING SYSTEM")
+                    .WithDescription("Click the green button below to open a private, confidential booster ticket for your order.")
+                    .AddField("⚡ Instant Pro Assignment", "A verified Top 200 Pro Booster will be assigned within 5-10 minutes.", false)
+                    .AddField("🛡️ Residential VPN Security", "100% ban-free guarantee with matching regional subnet.", false)
+                    .AddField("🔒 Confidential Stream", "Live 1080p Discord stream of your matches directly in your private channel.", false)
+                    .WithColor(Color.Green)
+                    .WithFooter("Boosting Haven Automated Ticketing System")
+                    .WithCurrentTimestamp()
+                    .Build();
+
+                var panelButtons = new ComponentBuilder()
+                    .WithButton("🎫 Open Boost Ticket", "open_boost_ticket", ButtonStyle.Success, new Emoji("🎮"))
+                    .WithButton("🌐 Website Store", null, ButtonStyle.Link, url: "https://fc-25-boosting-services.vercel.app");
+
+                await ticketChan.SendMessageAsync(embed: panelEmbed, components: panelButtons.Build());
+            }
+
+            // 4. BOOSTER DESK Category & Feed Channel
+            ICategoryChannel? boosterCat = guild.CategoryChannels.FirstOrDefault(c => c.Name.Contains("BOOSTER DESK", StringComparison.OrdinalIgnoreCase) || c.Name.Contains("BOOSTER LOUNGE", StringComparison.OrdinalIgnoreCase));
+            if (boosterCat == null)
+            {
+                boosterCat = await guild.CreateCategoryChannelAsync("🏆 │ BOOSTER DESK");
+            }
+
+            ITextChannel? feedChan = guild.TextChannels.FirstOrDefault(c => c.Name == "orders-feed");
+            if (feedChan == null)
+            {
+                feedChan = await guild.CreateTextChannelAsync("orders-feed", p => p.CategoryId = boosterCat.Id);
+                await feedChan.SendMessageAsync("🚨 **Live Website Orders Feed initialized.** All incoming customer orders will be dispatched here in real time.");
+            }
+
+            _logger.LogInformation("Auto-provisioning for server '{GuildName}' completed successfully!", guild.Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to auto-provision server structure for {GuildName}.", guild.Name);
         }
     }
 
@@ -498,5 +598,110 @@ public class DiscordBotService : IDiscordBotService, IHostedService
             _logger.LogError(ex, "Failed to send Discord direct message notification for order #{OrderNumber}.", orderNumber);
             return false;
         }
+    }
+
+    public async Task<bool> NotifyNewOrderAsync(Order order)
+    {
+        var sent = false;
+
+        // 1. Try Discord Webhook (instant, works even without bot token)
+        var webhookUrl = _config["Discord:WebhookUrl"];
+        if (!string.IsNullOrWhiteSpace(webhookUrl) && webhookUrl.StartsWith("https://discord.com/api/webhooks/"))
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                var payload = new
+                {
+                    username = "Boosting Haven Order Desk",
+                    embeds = new[]
+                    {
+                        new
+                        {
+                            title = $"🚨 NEW BOOST ORDER: #{order.OrderNumber}",
+                            description = $"**Customer has placed a new order!**\nBooster can claim and start immediately.",
+                            color = 62875, // #00F59B neon green
+                            fields = new[]
+                            {
+                                new { name = "Service", value = order.ServiceName ?? "Custom Boost", inline = true },
+                                new { name = "Platform", value = (order.Platform ?? "PS5").ToUpper(), inline = true },
+                                new { name = "Price", value = $"${order.PriceSnapshot:F2} USD", inline = true },
+                                new { name = "Customer", value = order.CustomerName ?? "Customer", inline = true },
+                                new { name = "GamerTag / PSN", value = order.GamerTag ?? "Pending Setup", inline = true },
+                                new { name = "Contact Method", value = order.ContactMethod ?? "Discord", inline = true },
+                                new { name = "Status", value = order.Status ?? "Pending", inline = true },
+                                new { name = "Created At", value = order.CreatedAt.ToString("g"), inline = true }
+                            },
+                            footer = new { text = "Boosting Haven • 100% Ban-Free Residential VPN" },
+                            timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(webhookUrl, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Order #{OrderNumber} webhook notification dispatched to Discord.", order.OrderNumber);
+                    sent = true;
+                }
+                else
+                {
+                    _logger.LogWarning("Discord webhook responded with status {StatusCode}.", response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send Discord webhook for order #{OrderNumber}.", order.OrderNumber);
+            }
+        }
+
+        // 2. Try Discord Bot Client (if bot is running)
+        if (_client != null && _client.ConnectionState == ConnectionState.Connected)
+        {
+            var orderChannelIdStr = _config["Discord:OrderChannelId"];
+            ulong channelId = 0;
+            if (!ulong.TryParse(orderChannelIdStr, out channelId))
+            {
+                var autoChannel = _client.Guilds.SelectMany(g => g.TextChannels)
+                    .FirstOrDefault(c => c.Name == "orders-feed" || c.Name == "order-tickets");
+                if (autoChannel != null)
+                {
+                    channelId = autoChannel.Id;
+                }
+            }
+
+            if (channelId != 0)
+            {
+                try
+                {
+                    if (await _client.GetChannelAsync(channelId) is IMessageChannel channel)
+                    {
+                        var embed = new EmbedBuilder()
+                            .WithTitle($"🎮 NEW ORDER RECEIVED: #{order.OrderNumber}")
+                            .WithDescription($"**Service**: {order.ServiceName}\n**Platform**: {order.Platform}\n**Price**: ${order.PriceSnapshot:F2} USD\n**GamerTag**: {order.GamerTag}\n**Status**: {order.Status}")
+                            .WithColor(Color.Green)
+                            .WithFooter("Boosting Haven Order Dispatch • Click below to claim")
+                            .WithCurrentTimestamp()
+                            .Build();
+
+                        var buttons = new ComponentBuilder()
+                            .WithButton("Claim as Pro Booster", $"claim_ticket_{order.OrderNumber}", ButtonStyle.Success, new Emoji("🎮"))
+                            .WithButton("Create Private Ticket", $"confirm_order_{order.OrderNumber}", ButtonStyle.Primary, new Emoji("🎫"));
+
+                        await channel.SendMessageAsync(embed: embed, components: buttons.Build());
+                        _logger.LogInformation("Order #{OrderNumber} posted to Discord channel {ChannelId}.", order.OrderNumber, channelId);
+                        sent = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to post order #{OrderNumber} to Discord channel.", order.OrderNumber);
+                }
+            }
+        }
+
+        return sent;
     }
 }

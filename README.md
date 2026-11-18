@@ -1,6 +1,6 @@
-# React + Vite
+# Boosting Haven — Premium Gaming Boosting Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-performance gaming boosting and coaching platform built with React, Vite, Tailwind CSS, and an ASP.NET Core Web API with SQL Server integration.
 
 Currently, two official plugins are available:
 

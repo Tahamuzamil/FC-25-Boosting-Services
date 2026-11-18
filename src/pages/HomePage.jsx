@@ -1,4 +1,5 @@
 import Hero from '../components/Hero';
+import LiveActivityTicker from '../components/LiveActivityTicker';
 import FeaturedServicesGrid from '../components/FeaturedServicesGrid';
 import ValueProposition from '../components/ValueProposition';
 import QuickCalculator from '../components/QuickCalculator';
@@ -9,6 +10,7 @@ export default function HomePage() {
   return (
     <div className="w-full flex flex-col">
       <Hero />
+      <LiveActivityTicker />
       <FeaturedServicesGrid />
       <ValueProposition />
       <QuickCalculator />

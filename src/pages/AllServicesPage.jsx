@@ -1,10 +1,11 @@
+import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { OTHER_SERVICES } from '../data/mockData';
 import { Trophy, Award, Zap, GraduationCap, Target, Coins, ArrowRight, Check, ShieldCheck, Sparkles } from 'lucide-react';
 import { getAssetUrl } from '../utils/assets';
 
 export default function AllServicesPage() {
-  const { addToCart, setIsCartOpen, openContactModal, setCurrentPage } = useApp();
+  const { addToCart, setIsCartOpen, openContactModal, setCurrentPage, formatPrice, currentCurrency } = useApp();
 
   const getIcon = (iconName) => {
     switch (iconName) {
@@ -36,7 +37,12 @@ export default function AllServicesPage() {
       <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-6 sm:space-y-10">
         
         {/* Page Hero Header with Stadium Imagery */}
-        <div className="bg-gradient-to-r from-[#141824] via-[#1C2234] to-[#141824] border border-[#262B3D] rounded-3xl p-5 sm:p-8 md:p-10 relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-gradient-to-r from-[#141824] via-[#1C2234] to-[#141824] border border-[#262B3D] rounded-3xl p-5 sm:p-8 md:p-10 relative overflow-hidden shadow-2xl"
+        >
           <div className="absolute right-0 top-0 bottom-0 w-full sm:w-1/2 pointer-events-none opacity-20 overflow-hidden">
             <img
               src={getAssetUrl('images/stadium-bg.jpg')}
@@ -57,16 +63,20 @@ export default function AllServicesPage() {
               Browse Champions Play-Offs, Live Events, 1-on-1 Pro Coaching, and Milestone challenges.
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Services Grid with Real FIFA Pictures */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {OTHER_SERVICES.map((srv) => {
+          {OTHER_SERVICES.map((srv, idx) => {
             const Icon = getIcon(srv.icon);
             return (
-              <div
+              <motion.div
                 key={srv.id}
-                className="bg-[#141824] hover:bg-[#141824] border border-[#262B3D] hover:border-[#00F59B]/50 rounded-3xl overflow-hidden flex flex-col justify-between transition-all group shadow-xl hover:-translate-y-1 duration-300"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="bg-[#141824] border border-[#262B3D] hover:border-[#00F59B]/50 rounded-3xl overflow-hidden flex flex-col justify-between transition-colors group shadow-xl hover:shadow-2xl hover:shadow-[#00F59B]/5"
               >
                 {/* FIFA Picture Banner */}
                 {srv.image && (
@@ -113,8 +123,8 @@ export default function AllServicesPage() {
 
                     {/* Features List */}
                     <div className="space-y-2 pt-2 border-t border-[#262B3D]/70 text-xs">
-                      {srv.features.map((feat, idx) => (
-                        <div key={idx} className="flex items-center space-x-2 text-gray-300">
+                      {srv.features.map((feat, i) => (
+                        <div key={i} className="flex items-center space-x-2 text-gray-300">
                           <Check className="w-3.5 h-3.5 text-[#00F59B] shrink-0" />
                           <span>{feat}</span>
                         </div>
@@ -128,13 +138,15 @@ export default function AllServicesPage() {
                     <div className="flex items-baseline justify-between mb-4">
                       <span className="text-xs text-gray-400">Starting from</span>
                       <span className="text-2xl font-black text-[#00F59B]">
-                        ${srv.startingPrice} <span className="text-xs text-gray-400 font-normal">USD</span>
+                        {formatPrice(srv.startingPrice)} <span className="text-xs text-gray-400 font-normal font-mono">{currentCurrency.code}</span>
                       </span>
                     </div>
 
                     <div className="space-y-2.5">
                       {srv.id === 'pro-coaching' && (
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                           onClick={() => {
                             setCurrentPage('coaching');
                             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -143,44 +155,52 @@ export default function AllServicesPage() {
                         >
                           <span>Explore Pro Coaching Masterclass</span>
                           <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                        </motion.button>
                       )}
 
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => {
                           openContactModal({
                             serviceName: srv.title,
-                            details: `${srv.tagline} • Multi-Platform Supported`,
+                            details: srv.tagline,
                             price: srv.startingPrice,
                             platform: 'ps5',
                           });
                         }}
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] via-[#00F59B] to-[#5865F2] hover:opacity-95 text-[#0B0D13] text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-[#00F59B]/10 flex items-center justify-center space-x-1.5"
+                        className="w-full py-3.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-lg shadow-[#00F59B]/20"
                       >
-                        <span>ORDER WITH WHATSAPP / DISCORD</span>
+                        <span>Direct WhatsApp / Discord Order</span>
                         <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      </motion.button>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                           onClick={() => handleBuy(srv, false)}
-                          className="py-2.5 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-xs font-bold text-gray-300 hover:text-white transition-colors cursor-pointer text-center"
+                          className="py-2.5 rounded-xl bg-[#1C2234] hover:bg-[#262B3D] border border-[#262B3D] text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center space-x-1"
                         >
-                          Add to Cart
-                        </button>
-                        <button
+                          <span>Add To Cart</span>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                           onClick={() => handleBuy(srv, true)}
-                          className="py-2.5 rounded-xl bg-[#00F59B] hover:bg-[#00D687] text-[#0B0D13] text-xs font-black uppercase tracking-wider transition-colors cursor-pointer text-center"
+                          className="py-2.5 rounded-xl bg-[#141824] hover:bg-[#1C2234] border border-[#00F59B]/40 text-[#00F59B] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center space-x-1"
                         >
-                          CHECKOUT
-                        </button>
+                          <span>Instant Pay</span>
+                        </motion.button>
                       </div>
+
                     </div>
                   </div>
 
                 </div>
 
-              </div>
+              </motion.div>
             );
           })}
         </div>
